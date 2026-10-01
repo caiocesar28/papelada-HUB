@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Princípio 1: nada sai do navegador. Só recursos do próprio site; sem CDN, sem fontes externas. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data: blob:; worker-src 'self' blob:; frame-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <title>Papelada HUB</title>
+  </head>
+  <body>
+    <header class="topo-app">
+      <div class="marca"><span class="logo" aria-hidden="true">PH</span> <span class="marca-texto">Papelada HUB</span></div>
+      <p class="selo-privacidade" role="note">
+        <span aria-hidden="true">🔒</span> <span class="selo-longo">Dados do paciente só nesta aba: nada é enviado nem salvo.</span><span class="selo-curto">Só nesta aba</span>
+      </p>
+      <nav class="acoes-topo" id="acoes-topo">
+        <a class="botao-link" href="adm.html" target="_blank">Modelos</a>
+      </nav>
+    </header>
+    <main id="app"></main>
+    <footer class="rodape-site">
+      Feito por Caio César e Leticia Brandão · Turma 114 ·
+      inspirado no <a href="https://joaogualda19.github.io/enfermaria.gohub/" target="_blank" rel="noopener">gerador de alta de João Gualda</a> ·
+      <a href="https://github.com/caiocesarbezerrasilva-a11y/papelada-HUB" target="_blank" rel="noopener">código</a>
+    </footer>
+    <p class="aviso-impressao">Para imprimir, use o botão "Imprimir documentos" (ou Ctrl+P) dentro do app.</p>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

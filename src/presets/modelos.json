@@ -1,0 +1,59 @@
+{
+  "receitas": [
+    {
+      "id": "sintomaticos",
+      "nome": "Sintomáticos",
+      "itens": [
+        {
+          "id": "dipirona",
+          "nome": "Dipirona",
+          "prescricao": "Dipirona 500 mg",
+          "posologia": "2 comprimidos via oral de 6/6h, se dor ou febre.",
+          "porDose": 2,
+          "vezesAoDia": 4,
+          "unidade": "comprimidos",
+          "padrao": true
+        },
+        {
+          "id": "paracetamol",
+          "nome": "Paracetamol (opção se alergia a dipirona)",
+          "prescricao": "Paracetamol 500 mg",
+          "posologia": "Via oral, de 6/6h, se dor.",
+          "porDose": 1,
+          "vezesAoDia": 4,
+          "unidade": "comprimidos"
+        },
+        {
+          "id": "tenoxicam",
+          "nome": "Tenoxicam",
+          "prescricao": "Tenoxicam 40 mg",
+          "posologia": "Via oral, uma vez ao dia, se dor forte.",
+          "porDose": 1,
+          "vezesAoDia": 1,
+          "unidade": "comprimidos",
+          "padrao": true
+        },
+        {
+          "id": "ondansetrona",
+          "nome": "Ondansetrona",
+          "prescricao": "Ondansetrona 4 mg",
+          "posologia": "Via sublingual, de 6/6h, se náuseas.",
+          "porDose": 1,
+          "vezesAoDia": 4,
+          "unidade": "comprimidos",
+          "padrao": true
+        },
+        {
+          "id": "simeticona",
+          "nome": "Simeticona",
+          "prescricao": "Simeticona 40 mg",
+          "posologia": "Via oral, 3 vezes ao dia, se gases.",
+          "porDose": 1,
+          "vezesAoDia": 3,
+          "unidade": "comprimidos"
+        }
+      ]
+    }
+  ],
+  "tcles": []
+}

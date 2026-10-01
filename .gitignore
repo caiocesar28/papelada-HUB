@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.local
+.DS_Store
+Thumbs.db
+
+# Originais com dados de terceiros: ficam só locais (ver forms.manifest.json)
+forms-originais/

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calibrar formulário</title>
+    <style>
+      :root {
+        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        font-size: 14px;
+        color: #1b1f24;
+        background: #eceff1;
+      }
+      body {
+        margin: 0;
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        height: 100vh;
+      }
+      #palco {
+        overflow: auto;
+        padding: 16px;
+      }
+      #pagina {
+        position: relative;
+        display: inline-block;
+        box-shadow: 0 1px 6px rgb(0 0 0 / 0.25);
+        background: #fff;
+        cursor: crosshair;
+      }
+      #pagina canvas {
+        display: block;
+      }
+      #camada {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .widget {
+        position: absolute;
+        border: 1px solid #1565c0;
+        background: rgb(21 101 192 / 0.12);
+        pointer-events: auto;
+        cursor: pointer;
+        font-size: 9px;
+        color: #0d47a1;
+        overflow: hidden;
+        white-space: nowrap;
+        line-height: 1;
+      }
+      .widget:hover {
+        background: rgb(21 101 192 / 0.3);
+      }
+      .widget.usado {
+        border-color: #2e7d32;
+        background: rgb(46 125 50 / 0.18);
+        color: #1b5e20;
+      }
+      .marca {
+        position: absolute;
+        width: 0;
+        height: 0;
+      }
+      .marca::before {
+        content: '';
+        position: absolute;
+        left: -4px;
+        top: -4px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #d32f2f;
+      }
+      .marca span {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        color: #c62828;
+        font-family: Helvetica, Arial, sans-serif;
+        white-space: pre;
+        transform-origin: left bottom;
+        line-height: 1;
+      }
+      aside {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+        background: #fff;
+        border-left: 1px solid #cfd8dc;
+        overflow: auto;
+      }
+      fieldset {
+        border: 1px solid #cfd8dc;
+        border-radius: 6px;
+        padding: 8px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 6px 8px;
+        align-items: center;
+      }
+      legend {
+        font-weight: 600;
+      }
+      .linha {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      input[type='number'] {
+        width: 5em;
+      }
+      #saida {
+        flex: 1;
+        min-height: 240px;
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 12px;
+      }
+      #leitura {
+        font-family: ui-monospace, Consolas, monospace;
+      }
+      .dica {
+        color: #546e7a;
+        font-size: 12px;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="palco">
+      <div id="pagina">
+        <canvas id="canvas"></canvas>
+        <div id="camada"></div>
+      </div>
+    </div>
+
+    <aside>
+      <fieldset>
+        <legend>PDF</legend>
+        <label for="formulario">Formulário</label>
+        <select id="formulario"><option value="">— escolher —</option></select>
+        <label for="arquivo">Ou arquivo</label>
+        <input id="arquivo" type="file" accept="application/pdf" />
+        <span>Página</span>
+        <div class="linha">
+          <button id="ant" type="button">◀</button>
+          <span id="numPagina">–</span>
+          <button id="prox" type="button">▶</button>
+          <label>zoom <input id="zoom" type="number" value="1.5" step="0.25" min="0.5" max="4" /></label>
+        </div>
+        <span>Tamanho</span>
+        <span id="tamanhoPagina">–</span>
+        <label for="mostrarWidgets">Campos AcroForm</label>
+        <input id="mostrarWidgets" type="checkbox" checked />
+      </fieldset>
+
+      <fieldset>
+        <legend>Próximo campo</legend>
+        <label for="chave">key</label>
+        <input id="chave" placeholder="paciente.nome" list="chaves" />
+        <label for="tamanho">size</label>
+        <div class="linha">
+          <input id="tamanho" type="number" value="10" step="0.5" min="4" />
+          <label>rotate <input id="rotacao" type="number" value="0" step="90" /></label>
+        </div>
+        <label for="largura">maxWidth</label>
+        <input id="largura" type="number" min="0" placeholder="(opcional)" />
+      </fieldset>
+
+      <p class="dica">
+        Clique onde começa a <b>linha de base</b> do texto (o "chão" das letras). Clique num retângulo
+        azul para pegar o nome do campo AcroForm. A prévia vermelha usa o tamanho de fonte real.
+        Edite a lista à vontade: as marcas são redesenhadas a partir dela.
+      </p>
+      <div id="leitura">x: – y: –</div>
+
+      <textarea id="saida" spellcheck="false"></textarea>
+      <div class="linha">
+        <button id="copiar" type="button">Copiar</button>
+        <button id="todosWidgets" type="button">Listar todos os campos AcroForm</button>
+        <button id="limpar" type="button">Limpar</button>
+      </div>
+    </aside>
+
+    <datalist id="chaves"></datalist>
+    <script type="module" src="./calibrate.ts"></script>
+  </body>
+</html>

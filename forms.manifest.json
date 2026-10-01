@@ -1,0 +1,130 @@
+{
+  "source": "https://www.camedunb.com/documentos-hub-ses",
+  "sourceNote": "Espelho mantido pelo CAMed-UnB, não é fonte oficial. Conferir a versão vigente na enfermaria.",
+  "forms": [
+    {
+      "id": "tcle-cirurgia",
+      "file": "public/forms/tcle-cirurgia.pdf",
+      "label": "TCLE CIRURGIA",
+      "section": "Clínica Cirúrgica",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_05dd1690f3ae419ca34559a683c3eeb7.pdf",
+      "downloadedAt": "2026-10-01T15:01:00-03:00",
+      "sha256": "667b4e8a26f15c8e3a48a545462ce2ef8ab3c7209dbfc0775dabd8195e266281",
+      "bytes": 367025
+    },
+    {
+      "id": "tcle-transfusao",
+      "file": "public/forms/tcle-transfusao.pdf",
+      "label": "tcle transfusão",
+      "section": "Clínica Cirúrgica",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_39adae716e1d4c4a8be4f88324aa4856.pdf",
+      "downloadedAt": "2026-10-01T15:01:00-03:00",
+      "sha256": "24b6438722893bf1c24e8a6d7ddc5445b00a7e9474384cd884e3186d2c96a6be",
+      "bytes": 395981
+    },
+    {
+      "id": "requisicao-transfusao-hub",
+      "file": "public/forms/requisicao-transfusao-hub.pdf",
+      "label": "Requisição de Transfusão",
+      "section": "Documentos Gerais",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_f3e2569c82a94798af450ed71036f142.pdf",
+      "aliases": [
+        {
+          "label": "TRANSFUSÃO",
+          "section": "Clínica Cirúrgica",
+          "url": "https://www.camedunb.com/_files/ugd/333e66_eb8f801f59e044a497cc2832984ff0bd.pdf",
+          "note": "Arquivo idêntico (mesmo sha256). Não é um TCLE."
+        }
+      ],
+      "downloadedAt": "2026-10-01T15:01:00-03:00",
+      "sha256": "7c3f5b39fdcd15e839b23cd1e1126719600b2edb2e6125976d6ccd1a0a3b87fe",
+      "bytes": 627123
+    },
+    {
+      "id": "requisicao-transfusao-hemocentro",
+      "file": "public/forms/requisicao-transfusao-hemocentro.pdf",
+      "label": "REQUISIÇÃO DE TRANSFUSÃO - HEMOCENTRO",
+      "section": "Documentos Gerais",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_87a428171a7642a2aef848ffe21c36a1.pdf",
+      "downloadedAt": "2026-10-01T15:01:00-03:00",
+      "sha256": "f10d87248593e005113258aa1aac2b98172593993ac9481a36abda6446606b97",
+      "bytes": 190664
+    },
+    {
+      "id": "receituario-comum-hub",
+      "file": "public/forms/receituario-comum-hub.pdf",
+      "label": "Receituário COMUM",
+      "section": "Laudos / Atestados / Notificação",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_7eaa5e9f4d224b819090e68adf58e818.pdf",
+      "downloadedAt": "2026-10-01T15:01:00-03:00",
+      "sha256": "d30deeb9fd108d1e626f54f7fc29f952e4dd870ceaefab1552f63901a308285a",
+      "bytes": 22164
+    },
+    {
+      "id": "receituario-comum-ses",
+      "file": "public/forms/receituario-comum-ses.pdf",
+      "label": "Receituário Comum",
+      "section": "Documentos Gerais",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_5295c5f256254cd0870eb7d121a1ddd2.pdf",
+      "downloadedAt": "2026-10-01T15:01:00-03:00",
+      "sha256": "f1d481f437421e12b88be5564f1a0fa6788b472943affd54a7e503512ac4176f",
+      "bytes": 428322,
+      "original": {
+        "sha256": "afcd0d83bf324e62a84d78b41d6eae8d0684b616127a600c7dfb30f7482004a5",
+        "bytes": 922999,
+        "localCopy": "forms-originais/receituario-comum-ses.pdf (fora do git)"
+      },
+      "derived": "O original é criptografado (senha de permissões) e vem com uma receita real de 2020 salva nos campos. Cópia derivada: descriptografada com pypdf (senha vazia) e limpa com tools/limpar-campos.ts (campos vazios, objetos órfãos removidos). forms:check deve comparar o download com original.sha256."
+    },
+    {
+      "id": "prescricao-atb",
+      "file": "public/forms/prescricao-atb.pdf",
+      "label": "PRESCRIÇÃO DE ATB",
+      "section": "Documentos Gerais",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_d7e3a1737d824b59a9111b65533dac01.pdf",
+      "downloadedAt": "2026-10-01T15:01:00-03:00",
+      "sha256": "d7f7940de1e5a33e2e1cd128ebe412fdc1cdd50cff779b05abbc380901aaf856",
+      "bytes": 1033297
+    },
+    {
+      "id": "atestado-hub",
+      "file": "public/forms/atestado-hub.pdf",
+      "label": "Atestado",
+      "section": "Laudos / Atestados / Notificação",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_250e76e089dd4f82982d15d3dc09a475.pdf",
+      "downloadedAt": "2026-10-01T15:01:00-03:00",
+      "sha256": "665c49972af811775c33daccdc3a51ec6613831ed407f51a2bf414426dabc253",
+      "bytes": 45395
+    },
+    {
+      "id": "atestado-ses",
+      "file": "public/forms/atestado-ses.pdf",
+      "label": "ATESTADO",
+      "section": "Laudos / Atestados / Notificação",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_42dcdfad574146579db7fea799f19b18.pdf",
+      "downloadedAt": "2026-10-01T15:01:00-03:00",
+      "sha256": "d772906e45e50c9230f7d79206291d22694041613f869b61f5b3e677a918580b",
+      "bytes": 1160688
+    },
+    {
+      "id": "boletim-internacao-alta",
+      "file": "public/forms/boletim-internacao-alta.pdf",
+      "label": "BOLETIM DE INTERNAÇÃO E ALTA",
+      "section": "Boletim de Internação e Alta",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_75a41a83af5248b0a847f0a5e8d30bb3.pdf",
+      "downloadedAt": "2026-10-01T15:01:00-03:00",
+      "sha256": "f392f7568a19fb21d2456e8095d1c851f901a208aacdbe8e4a03ca72265ced17",
+      "bytes": 89835
+    },
+    {
+      "id": "marcacao-consulta-hub",
+      "file": "public/forms/marcacao-consulta-hub.pdf",
+      "label": "MARCAÇÃO DE CONSULTA",
+      "section": "Laudos / Atestados / Notificação",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_b49fd226734e4c65b553073e6fc33f2d.pdf",
+      "downloadedAt": "2026-10-01T15:25:00-03:00",
+      "sha256": "cbd85b2a1ec4af4f61c5d37d573a7bde81580ec71582513c3205521f724e2c94",
+      "bytes": 145067
+    }
+  ]
+}
