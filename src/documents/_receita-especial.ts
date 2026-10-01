@@ -1,5 +1,5 @@
 import type { CampoAcroform, DocumentDef } from '../document';
-import { DIAS_PADRAO, calcularReceita } from './_receita';
+import { calcularReceita } from './_receita';
 
 /**
  * Receituário de controle especial (HUB e SES usam o mesmo layout): A4 deitada com 1ª via
@@ -26,7 +26,6 @@ export function receituarioEspecial(hospital: 'HUB' | 'SES', form: string): Docu
     viasNaFolha: 2,
     perSheet: 1,
     extraInputs: [
-      { key: 'dias', label: 'Dias de tratamento', type: 'number', padrao: DIAS_PADRAO },
       {
         key: 'itens',
         label: 'Itens da receita',

@@ -9,7 +9,7 @@ import '../style.css';
 import './adm.css';
 import { ARQUIVO_MODELOS, URL_EDITAR_MODELOS, URL_REPO } from '../config';
 import type { ItemReceita } from '../document';
-import { DIAS_PADRAO, textoReceita } from '../documents/_receita';
+import { textoReceita } from '../documents/_receita';
 import {
   CHAVE_RASCUNHO,
   PUBLICADOS,
@@ -183,30 +183,12 @@ function texto(
   return campo(rotulo, opts.area ? h('textarea', { ...attrs, rows: 5 }) : h('input', { ...attrs, type: 'text' }));
 }
 
-function numero(rotulo: string, valor: number | undefined, aoMudar: (v: number | undefined) => void): HTMLElement {
-  return campo(
-    rotulo,
-    h('input', {
-      type: 'number',
-      min: 0,
-      step: 'any',
-      value: valor === undefined ? '' : String(valor),
-      oninput: (ev) => {
-        const s = (ev.target as HTMLInputElement).value;
-        aoMudar(s === '' ? undefined : Number(s));
-        salvar(true);
-        atualizarPrevia();
-      },
-    }),
-  );
-}
-
 function editorReceita(m: ModeloReceita): HTMLElement[] {
   const previa = h('pre', { class: 'previa-texto' });
   atualizarPrevia = () => {
     const marcados = m.itens.filter((i) => i.padrao);
     previa.textContent = marcados.length
-      ? textoReceita(marcados, Number(DIAS_PADRAO)).replace(/\t/g, ' ------------ ')
+      ? textoReceita(marcados).replace(/\t/g, ' ------------ ')
       : '(nenhum item marcado por padrão)';
   };
 
@@ -273,31 +255,15 @@ function editorReceita(m: ModeloReceita): HTMLElement[] {
           texto('Linha 2: posologia', it.posologia, (v) => mudar((x) => (x.posologia = v)), {
             placeholder: 'em branco = linha para escrever à mão',
           }),
-          h(
-            'div',
-            { class: 'linha' },
-            numero('Por dose', it.porDose, (v) =>
+          texto(
+            'Quantidade',
+            it.quantidade ?? '',
+            (v) =>
               mudar((x) => {
-                if (v === undefined) delete x.porDose;
-                else x.porDose = v;
+                if (v.trim()) x.quantidade = v;
+                else delete x.quantidade;
               }),
-            ),
-            numero('Vezes ao dia', it.vezesAoDia, (v) =>
-              mudar((x) => {
-                if (v === undefined) delete x.vezesAoDia;
-                else x.vezesAoDia = v;
-              }),
-            ),
-            texto(
-              'Unidade',
-              it.unidade ?? '',
-              (v) =>
-                mudar((x) => {
-                  if (v) x.unidade = v;
-                  else delete x.unidade;
-                }),
-              { placeholder: 'comprimidos' },
-            ),
+            { placeholder: 'Ex.: 20 comprimidos (em branco = sai sem quantidade)' },
           ),
         );
       }),
@@ -315,14 +281,14 @@ function editorReceita(m: ModeloReceita): HTMLElement[] {
       {
         type: 'button',
         onclick: () => {
-          m.itens.push({ id: novoId('item'), nome: '', prescricao: '', posologia: '', unidade: 'comprimidos' });
+          m.itens.push({ id: novoId('item'), nome: '', prescricao: '', posologia: '' });
           salvar(true);
           renderItens();
         },
       },
       '+ Adicionar item',
     ),
-    h('h3', {}, `Como sai na receita (itens marcados, ${DIAS_PADRAO} dias)`),
+    h('h3', {}, 'Como sai na receita (itens marcados por padrão)'),
     previa,
   ];
 }

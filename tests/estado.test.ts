@@ -62,8 +62,19 @@ describe('estado da tela', () => {
     const e = estadoInicial();
     const def = varianteDe('retorno', 'HUB')!;
     iniciarExtras(e, def);
-    expect(e.extras.retorno.vias).toBe('1');
+    // retorno começa com 1 cartão vazio
+    expect(e.extras.retorno.cartoes).toEqual([{}]);
     e.dataIso = '2026-12-31';
     expect(contexto(e, def).data.toISOString()).toBe('2026-12-31T15:00:00.000Z');
+    expect(e.juntarMeias).toBe(true);
+  });
+
+  it('o contexto é uma cópia: editar cartões depois não altera um PDF já gerado', () => {
+    const e = estadoInicial();
+    const def = varianteDe('retorno', 'HUB')!;
+    iniciarExtras(e, def);
+    const ctx = contexto(e, def);
+    (e.extras.retorno.cartoes as Array<Record<string, string>>)[0].clinica = 'mudou';
+    expect(ctx.extra.cartoes).toEqual([{}]);
   });
 });

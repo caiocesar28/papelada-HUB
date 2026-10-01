@@ -50,12 +50,6 @@ function texto(v: unknown, campo: string): string {
   return v;
 }
 
-function numeroOpcional(v: unknown, campo: string): number | undefined {
-  if (v === undefined || v === null || v === '') return undefined;
-  if (typeof v !== 'number' || !Number.isFinite(v) || v < 0) throw new Error(`campo '${campo}' deveria ser um número`);
-  return v;
-}
-
 function validarItem(v: unknown, onde: string): ItemReceita {
   if (!v || typeof v !== 'object') throw new Error(`${onde}: item inválido`);
   const o = v as Record<string, unknown>;
@@ -65,11 +59,8 @@ function validarItem(v: unknown, onde: string): ItemReceita {
     prescricao: texto(o.prescricao ?? '', `${onde}.prescricao`),
     posologia: texto(o.posologia ?? '', `${onde}.posologia`),
   };
-  const porDose = numeroOpcional(o.porDose, `${onde}.porDose`);
-  const vezesAoDia = numeroOpcional(o.vezesAoDia, `${onde}.vezesAoDia`);
-  if (porDose !== undefined) item.porDose = porDose;
-  if (vezesAoDia !== undefined) item.vezesAoDia = vezesAoDia;
-  if (o.unidade !== undefined && o.unidade !== '') item.unidade = texto(o.unidade, `${onde}.unidade`);
+  // porDose/vezesAoDia/unidade (versão antiga, com cálculo) são ignorados.
+  if (o.quantidade !== undefined && o.quantidade !== '') item.quantidade = texto(o.quantidade, `${onde}.quantidade`);
   if (o.padrao === true) item.padrao = true;
   return item;
 }

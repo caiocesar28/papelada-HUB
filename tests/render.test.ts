@@ -145,6 +145,47 @@ describe('preencher (overlay)', () => {
   });
 });
 
+describe('juntar meias folhas no lote', () => {
+  const gerar = async (id: string, extra: Contexto['extra'] = {}) => {
+    const { documentos } = await import('../src/registry');
+    const def = documentos.find((d) => d.id === id)!;
+    return gerarDocumento(def, { ...ctx(), extra }, readFileSync(new URL(`../public/${def.form}`, import.meta.url)));
+  };
+  const paginas = async (bytes: Uint8Array) => {
+    const pdf = await PDFDocument.load(bytes);
+    return pdf.getPages().map((p) => {
+      const { width, height } = p.getSize();
+      return width > height ? 'deitada' : 'em pé';
+    });
+  };
+
+  it('atestado (A5 em pé) + exames (A5 deitada) = 1 folha em pé, em vez de 2', async () => {
+    const lote = [await gerar('atestado-hub', { dias: '2' }), await gerar('exames-hub', { exames: 'X' })];
+    expect(await paginas(await gerarLote(lote))).toHaveLength(2);
+    expect(await paginas(await gerarLote(lote, { juntarMeias: true }))).toEqual(['em pé']);
+  });
+
+  it('retorno (metade de cima da A4) também é meia folha', async () => {
+    const lote = [await gerar('retorno-hub', { cartoes: [{ clinica: 'X', data: '2026-10-20', hora: '08:00' }] }), await gerar('exames-hub')];
+    expect(await paginas(await gerarLote(lote, { juntarMeias: true }))).toEqual(['em pé']);
+  });
+
+  it('dois atestados (A5 em pé) ficam lado a lado numa A4 deitada', async () => {
+    const lote = [await gerar('atestado-hub'), await gerar('atestado-hub')];
+    expect(await paginas(await gerarLote(lote, { juntarMeias: true }))).toEqual(['deitada']);
+  });
+
+  it('folhas inteiras ficam como estão; as meias entram no lugar da primeira meia folha', async () => {
+    const receita = await gerar('receituario-hub');
+    const lote = [receita, await gerar('atestado-hub'), await gerar('tcle-cirurgia'), await gerar('exames-hub')];
+    // receita (1, deitada) + [atestado+exames] (1, em pé) + TCLE (2, em pé)
+    expect(await paginas(await gerarLote(lote, { juntarMeias: true }))).toEqual(['deitada', 'em pé', 'em pé', 'em pé']);
+    const { contarFolhas } = await import('../src/render');
+    expect(contarFolhas(lote, true)).toBe(4);
+    expect(contarFolhas(lote, false)).toBe(5);
+  });
+});
+
 describe('folhas', () => {
   const base = {
     tipo: 't',

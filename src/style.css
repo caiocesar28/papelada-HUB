@@ -422,6 +422,42 @@ button {
   background: linear-gradient(to bottom, transparent, var(--fundo) 30%);
 }
 
+.opcao-papel {
+  justify-content: center;
+  font-size: 0.85rem;
+  color: var(--suave);
+}
+
+.lista-entradas {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.entrada {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--primaria-media);
+  border-radius: 10px;
+  background: var(--primaria-clara);
+}
+
+.cabecalho-entrada {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.remover {
+  border: none;
+  background: none;
+  color: var(--erro);
+  font-weight: 600;
+  padding: 2px 4px;
+}
+
 .resumo-impressao {
   margin: 0;
   text-align: center;

@@ -37,6 +37,8 @@ export interface Estado {
   modelos: Modelos;
   /** Tipo cuja aba está aberta. */
   aba: string | null;
+  /** Na impressão, meias folhas de documentos diferentes dividem a mesma A4. */
+  juntarMeias: boolean;
 }
 
 export function estadoInicial(modelos: Modelos = PUBLICADOS): Estado {
@@ -50,6 +52,7 @@ export function estadoInicial(modelos: Modelos = PUBLICADOS): Estado {
     modeloReceita: {},
     modelos,
     aba: null,
+    juntarMeias: true,
   };
 }
 
@@ -98,13 +101,16 @@ export function iniciarExtras(e: Estado, def: DocumentDef): void {
     if (inp.type === 'receita') {
       if (!receitas[inp.key]) aplicarModeloReceita(e, def.tipo, inp.key, inp.modeloPadrao ?? '');
     } else if (!(inp.key in extras)) {
-      extras[inp.key] = inp.padrao ?? (inp.type === 'checkbox' ? false : '');
+      extras[inp.key] =
+        inp.type === 'lista'
+          ? Array.from({ length: inp.min ?? 1 }, () => ({}))
+          : (inp.padrao ?? (inp.type === 'checkbox' ? false : ''));
     }
   }
 }
 
 export function contexto(e: Estado, def: DocumentDef): Contexto {
-  const extra: Record<string, ValorExtra> = { ...(e.extras[def.tipo] ?? {}) };
+  const extra: Record<string, ValorExtra> = structuredClone(e.extras[def.tipo] ?? {});
   for (const [key, itens] of Object.entries(e.receitas[def.tipo] ?? {})) {
     extra[key] = itens.filter((i) => i.marcado).map(({ marcado: _m, ...item }) => item);
   }

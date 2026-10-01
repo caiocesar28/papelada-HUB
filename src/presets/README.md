@@ -10,5 +10,6 @@ usuário. É a ÚNICA fonte desse tipo de texto no app (princípio 4 do CLAUDE.m
 **Modelos** (`adm.html`) e publique com "Publicar no GitHub": só quem tem permissão de escrita
 no repositório consegue fazer o commit, e o site é republicado automaticamente.
 
-Em cada item de receita, `porDose` × `vezesAoDia` × dias de tratamento dá a quantidade que
-sai na linha 1 ("Dipirona 500 mg ------ 40 comprimidos").
+Em cada item de receita, `quantidade` é um texto livre ("20 comprimidos", "1 frasco") que sai
+na linha 1 ligado por tracejado ("Dipirona 500 mg ------ 20 comprimidos"). Não há cálculo a
+partir de dose, frequência ou dias: o número é sempre o que o usuário escreveu.

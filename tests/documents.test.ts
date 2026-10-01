@@ -34,10 +34,7 @@ function ctxCompleto(hospital: TipoHospital = 'HUB'): Contexto {
     extra: {
       itens: [item({ id: 'a', nome: 'Item A' })],
       dias: '3',
-      clinica: 'Cirurgia geral',
-      dataConsulta: '2026-10-20',
-      hora: '08:00',
-      vias: '2',
+      cartoes: [{ clinica: 'Cirurgia geral', data: '2026-10-20', hora: '08:00' }],
       clinicaDestino: 'Cardiologia',
       motivo: 'Motivo de teste',
       exames: 'Exame de teste',
@@ -116,29 +113,35 @@ describe('receita', () => {
         item({ nome: 'Dipirona' }),
         item({ nome: 'Outro', prescricao: 'Linha 1 escrita pelo usuário', posologia: 'Linha 2 escrita pelo usuário' }),
       ],
-      5,
     );
     expect(t).toBe(
       `1. Dipirona\n    ${LINHA_EM_BRANCO}\n\n2. Linha 1 escrita pelo usuário\n    Linha 2 escrita pelo usuário`,
     );
   });
 
-  it('quantidade = por dose × vezes ao dia × dias, ligada por tracejado (\\t)', () => {
-    const dipirona = item({ prescricao: 'Dipirona 500 mg', posologia: 'p', porDose: 2, vezesAoDia: 4, unidade: 'comprimidos' });
-    expect(quantidade(dipirona, 5)).toBe('40 comprimidos');
-    expect(quantidade({ ...dipirona, porDose: 1, vezesAoDia: 1 }, 1)).toBe('1 comprimido');
-    expect(quantidade({ ...dipirona, quantidade: '1 frasco' }, 5)).toBe('1 frasco');
-    expect(quantidade(item({}), 5)).toBe('');
-    expect(quantidade(dipirona, 0)).toBe('');
-    expect(textoReceita([dipirona], 5)).toBe('1. Dipirona 500 mg\t40 comprimidos\n    p');
+  it('quantidade é o texto digitado, sem cálculo, ligada por tracejado (\\t)', () => {
+    const dipirona = item({ prescricao: 'Dipirona 500 mg', posologia: 'p', quantidade: ' 20 comprimidos ' });
+    expect(quantidade(dipirona)).toBe('20 comprimidos');
+    expect(quantidade(item({}))).toBe('');
+    expect(textoReceita([dipirona])).toBe('1. Dipirona 500 mg\t20 comprimidos\n    p');
+    expect(textoReceita([item({ prescricao: 'Sem quantidade', posologia: 'p' })])).toBe('1. Sem quantidade\n    p');
   });
 
-  it('dias de tratamento vêm do extra "dias" (padrão 5)', () => {
+  it('não há mais "dias de tratamento" nem cálculo de quantidade nos receituários', () => {
+    for (const tipo of ['receituario', 'receituario-especial']) {
+      for (const h of ['HUB', 'SES'] as const) {
+        const def = varianteDe(tipo, h)!;
+        expect(def.extraInputs?.some((i) => i.key === 'dias'), `${tipo}/${h}`).toBe(false);
+      }
+    }
     const def = varianteDe('receituario', 'HUB')!;
-    expect(def.extraInputs?.find((i) => i.key === 'dias')?.padrao).toBe('5');
-    const tenox = item({ prescricao: 'Tenoxicam 40 mg', posologia: 'x', porDose: 1, vezesAoDia: 1, unidade: 'comprimidos' });
-    const v = valoresDoDocumento(def, { ...ctxCompleto(), extra: { dias: '5', itens: [tenox] } });
-    expect(v['doc.corpo']).toBe('1. Tenoxicam 40 mg\t5 comprimidos\n    x');
+    const v = valoresDoDocumento(def, { ...ctxCompleto(), extra: { dias: '5', itens: [item({ prescricao: 'Tenoxicam 40 mg', posologia: 'x' })] } });
+    expect(v['doc.corpo']).toBe('1. Tenoxicam 40 mg\n    x');
+  });
+
+  it('modelos publicados não guardam campos do cálculo antigo', () => {
+    const bruto = readFileSync(new URL('../src/presets/modelos.json', import.meta.url), 'utf8');
+    expect(bruto).not.toMatch(/porDose|vezesAoDia|"unidade"/);
   });
 
   it('sem itens marcados, o corpo é cobrado como vazio', async () => {
@@ -183,28 +186,37 @@ describe('atestado', () => {
 describe('retorno', () => {
   const def = varianteDe('retorno', 'HUB')!;
 
-  it('preenche só os cartões pedidos', () => {
+  it('cada cartão tem clínica, data e hora próprias; só os cartões existentes saem', () => {
     const ctx = ctxCompleto();
-    ctx.extra.vias = '3';
+    ctx.extra.cartoes = [
+      { clinica: 'Cirurgia geral', data: '2026-10-20', hora: '08:00' },
+      { clinica: 'Cardiologia', data: '2026-11-03', hora: '14:30' },
+    ];
     const v = valoresDoDocumento(def, ctx);
-    expect([1, 2, 3, 4].map((i) => v[`doc.via${i}`])).toEqual(['true', 'true', 'true', '']);
-    expect(v['doc.via5']).toBeUndefined();
-    expect(v['doc.dia']).toBe('20');
-    expect(v['doc.ano']).toBe('2026');
+    expect([1, 2, 3, 4].map((i) => v[`doc.c${i}`])).toEqual(['true', 'true', '', '']);
+    expect([v['doc.c1.clinica'], v['doc.c1.dia'], v['doc.c1.hora']]).toEqual(['Cirurgia geral', '20', '08:00']);
+    expect([v['doc.c2.clinica'], v['doc.c2.dia'], v['doc.c2.mes'], v['doc.c2.ano']]).toEqual(['Cardiologia', '03', '11', '2026']);
+    expect(v['doc.c5']).toBeUndefined();
   });
 
-  it('só a metade de cima: 4 cartões, máscara cobre a de baixo', () => {
+  it('cobra os campos vazios de cada cartão, com o número do cartão', async () => {
+    const ctx = ctxCompleto();
+    ctx.extra.cartoes = [{ clinica: 'Cirurgia geral', data: '2026-10-20', hora: '08:00' }, {}];
+    const g = await gerarDocumento(def, ctx, bytes(def));
+    expect([...new Set(g.vazios.map((x) => x.label))]).toEqual(['Cartão 2: clínica', 'Cartão 2: data', 'Cartão 2: hora']);
+  });
+
+  it('no máximo 4 cartões', () => {
+    const ctx = ctxCompleto();
+    ctx.extra.cartoes = Array.from({ length: 6 }, () => ({ clinica: 'X', data: '2026-10-20', hora: '08:00' }));
+    expect(valoresDoDocumento(def, ctx)['doc.c4']).toBe('true');
+    expect(def.extraInputs?.[0].max).toBe(4);
+  });
+
+  it('só a metade de cima: 4 cartões, máscara cobre a de baixo e o resto é meia folha', () => {
     expect(def.fields.every((c) => 'y' in c && c.y > 424)).toBe(true);
     expect(def.mascaras).toEqual([{ page: 0, x: 0, y: 0, width: 596, height: 424 }]);
-  });
-
-  it('vias fora da faixa ficam entre 1 e 4', () => {
-    const ctx = ctxCompleto();
-    ctx.extra.vias = '20';
-    expect(valoresDoDocumento(def, ctx)['doc.via4']).toBe('true');
-    ctx.extra.vias = '';
-    const v = valoresDoDocumento(def, ctx);
-    expect([v['doc.via1'], v['doc.via2']]).toEqual(['true', '']);
+    expect(def.meiaFolha).toEqual({ page: 0, x: 0, y: 424, width: 596, height: 419 });
   });
 });
 

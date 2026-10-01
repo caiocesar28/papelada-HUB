@@ -11,25 +11,23 @@ export interface ItemReceita {
   id: string;
   /** Nome curto mostrado na tela. */
   nome: string;
-  /** Linha 1 da receita: medicamento, concentração, quantidade. Vazio = usa `nome`. */
+  /** Linha 1 da receita: medicamento e concentração. Vazio = usa `nome`. */
   prescricao: string;
   /** Linha 2: como usar. Vazio = linha em branco para escrever à mão. */
   posologia: string;
   /**
-   * Quantidade = porDose × vezesAoDia × dias de tratamento, em `unidade`. Os números vêm do
-   * modelo escrito pelo usuário; sem eles, a quantidade fica em branco (ou usa `quantidade`).
+   * Quantidade a dispensar, como o médico escreveria ("20 comprimidos", "1 frasco"). Valor
+   * independente: não é calculado a partir de dose, frequência ou dias. Vazio = sai sem.
    */
-  porDose?: number;
-  vezesAoDia?: number;
-  /** Plural, p.ex. 'comprimidos'. */
-  unidade?: string;
-  /** Quantidade digitada; tem prioridade sobre a calculada. */
   quantidade?: string;
   /** Já vem marcado. */
   padrao?: boolean;
 }
 
-export type ValorExtra = string | boolean | ItemReceita[];
+/** Uma entrada de uma lista (type 'lista'), p.ex. um cartão de retorno: key → valor. */
+export type EntradaLista = Record<string, string>;
+
+export type ValorExtra = string | boolean | ItemReceita[] | EntradaLista[];
 
 /**
  * Campo comum: `key` é uma chave de `valores(ctx)` (src/patient.ts), p.ex. 'paciente.nome',
@@ -88,7 +86,7 @@ export function isAcroform(c: CampoDef): c is CampoAcroform {
 export interface ExtraInput {
   key: string;
   label: string;
-  type: 'text' | 'textarea' | 'number' | 'date' | 'checkbox' | 'select' | 'receita';
+  type: 'text' | 'textarea' | 'number' | 'date' | 'checkbox' | 'select' | 'receita' | 'lista';
   /** Valor inicial. */
   padrao?: ValorExtra;
   placeholder?: string;
@@ -96,6 +94,15 @@ export interface ExtraInput {
   opcoes?: string[];
   /** type 'receita': id do modelo carregado de início (src/modelos). Omitido = começa vazio. */
   modeloPadrao?: string;
+  /**
+   * type 'lista': entradas independentes, cada uma com estes campos (p.ex. cartões de retorno
+   * com clínica, data e hora próprias). Começa com `min` entradas.
+   */
+  campos?: Array<{ key: string; label: string; type: 'text' | 'date'; placeholder?: string }>;
+  min?: number;
+  max?: number;
+  /** Nome de uma entrada na tela ("Cartão" → "Cartão 1", "+ Adicionar cartão"). */
+  rotuloItem?: string;
   ajuda?: string;
 }
 
@@ -134,6 +141,11 @@ export interface DocumentDef {
    * extras do formulário (p.ex. metade dos cartões); nunca para esconder texto de um termo.
    */
   mascaras?: Array<{ page: number; x: number; y: number; width: number; height: number }>;
+  /**
+   * O documento inteiro cabe nesta região de uma página A4 (metade dela). Na impressão com
+   * "juntar meias folhas", essa região divide a folha com outra meia folha.
+   */
+  meiaFolha?: { page: number; x: number; y: number; width: number; height: number };
   extraInputs?: ExtraInput[];
   /** Valores derivados ('doc.*'), p.ex. corpo da receita, data por extenso, condições `se`. */
   calcular?: (v: Record<string, string>, ctx: Contexto) => Record<string, string>;

@@ -1,9 +1,9 @@
-import type { DocumentDef, ExtraInput } from '../document';
+import type { DocumentDef, EntradaLista, ExtraInput } from '../document';
 import { quantidade } from '../documents/_receita';
 import { TERMOS_COM_MODELO } from '../modelos';
 import { ROTULOS_PACIENTE, type Paciente, type TipoHospital } from '../patient';
 import { varianteDe } from '../registry';
-import { carregarFormulario, gerarDocumento, gerarLote, type DocumentoGerado } from '../render';
+import { carregarFormulario, contarFolhas, gerarDocumento, gerarLote, type DocumentoGerado } from '../render';
 import { TIPOS } from '../tipos';
 import { campo, h, type Attrs } from './dom';
 import {
@@ -23,10 +23,11 @@ import { mostrarPdf } from './preview';
 /** PDFs originais já baixados (não têm dado de paciente; sobrevivem a "Novo paciente"). */
 const formularios = new Map<string, ArrayBuffer>();
 
-/** O que sobrevive a "Novo paciente": o hospital e os documentos marcados. */
+/** O que sobrevive a "Novo paciente": hospital, documentos marcados e preferência de impressão. */
 interface Preservado {
   hospital: Estado['hospital'];
   selecionados: Set<string>;
+  juntarMeias: boolean;
 }
 
 export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
@@ -34,13 +35,13 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
   if (preservado) {
     e.hospital = { ...preservado.hospital };
     e.selecionados = new Set(preservado.selecionados);
+    e.juntarMeias = preservado.juntarMeias;
   }
   /** Listeners globais desta instância (removidos em "Novo paciente"). */
   const vida = new AbortController();
   let gerados: DocumentoGerado[] = [];
   let geracao = 0;
   let timer: number | undefined;
-  let atualizarReceita: (() => void) | null = null;
 
   // --- elementos fixos -------------------------------------------------------------
 
@@ -121,7 +122,25 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
         ),
         h('section', { class: 'cartao' }, h('h2', {}, h('span', { class: 'passo' }, '2'), 'Documentos'), listaDocs),
         blocoExtra,
-        h('div', { class: 'rodape-dados' }, botaoImprimir, resumoImpressao),
+        h(
+          'div',
+          { class: 'rodape-dados' },
+          botaoImprimir,
+          h(
+            'label',
+            { class: 'opcao opcao-papel', title: 'Atestado, requisição de exames e retorno ocupam meia folha' },
+            h('input', {
+              type: 'checkbox',
+              checked: e.juntarMeias,
+              onchange: (ev) => {
+                e.juntarMeias = (ev.target as HTMLInputElement).checked;
+                atualizarResumo();
+              },
+            }),
+            'Juntar meias folhas na mesma A4',
+          ),
+          resumoImpressao,
+        ),
       ),
       h('div', { class: 'painel-docs' }, abas, vazioGeral, conteudoAba),
     ),
@@ -207,7 +226,7 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
     if (temDados && !window.confirm('Apagar os dados deste paciente e começar outro?\nOs documentos marcados continuam marcados.')) return;
     vida.abort();
     window.clearTimeout(timer);
-    iniciarApp(raiz, { hospital: e.hospital, selecionados: e.selecionados });
+    iniciarApp(raiz, { hospital: e.hospital, selecionados: e.selecionados, juntarMeias: e.juntarMeias });
   }
 
   // --- documentos ---------------------------------------------------------------------
@@ -306,7 +325,6 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
 
   function renderAjustes(): void {
     const def = documentosAtivos(e).find((d) => d.tipo === e.aba);
-    atualizarReceita = null;
     if (!def) {
       ajustes.replaceChildren();
       return;
@@ -364,6 +382,7 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
   function inputExtra(def: DocumentDef, inp: ExtraInput): HTMLElement {
     const extras = e.extras[def.tipo];
     if (inp.type === 'receita') return listaReceita(def, inp);
+    if (inp.type === 'lista') return listaEntradas(def, inp);
     if (inp.type === 'checkbox') {
       return h(
         'label',
@@ -400,7 +419,6 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
       placeholder: inp.placeholder,
       oninput: (ev) => {
         extras[inp.key] = (ev.target as HTMLInputElement).value;
-        atualizarReceita?.(); // dias de tratamento mudam as quantidades sugeridas
         agendar();
       },
     };
@@ -411,10 +429,87 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
     return campo(inp.label, el, inp.ajuda);
   }
 
+  /** Entradas independentes (p.ex. cartões de retorno), cada uma com os mesmos campos. */
+  function listaEntradas(def: DocumentDef, inp: ExtraInput): HTMLElement {
+    const extras = e.extras[def.tipo];
+    const lista = h('div', { class: 'lista-entradas' });
+    const rotulo = inp.rotuloItem ?? 'Item';
+    const max = inp.max ?? Infinity;
+    const min = inp.min ?? 0;
+    const entradas = () => extras[inp.key] as EntradaLista[];
+    const adicionar = h(
+      'button',
+      {
+        type: 'button',
+        class: 'secundario',
+        onclick: () => {
+          entradas().push({});
+          render();
+          agendar();
+        },
+      },
+      `+ Adicionar ${rotulo.toLowerCase()}`,
+    );
+    const render = () => {
+      const itens = entradas();
+      adicionar.hidden = itens.length >= max;
+      lista.replaceChildren(
+        ...itens.map((ent, i) =>
+          h(
+            'div',
+            { class: 'entrada' },
+            h(
+              'div',
+              { class: 'cabecalho-entrada' },
+              h('strong', {}, `${rotulo} ${i + 1}`),
+              itens.length > min
+                ? h(
+                    'button',
+                    {
+                      type: 'button',
+                      class: 'remover',
+                      onclick: () => {
+                        itens.splice(i, 1);
+                        render();
+                        agendar();
+                      },
+                    },
+                    'Remover',
+                  )
+                : null,
+            ),
+            ...(inp.campos ?? []).map((c) =>
+              campo(
+                c.label,
+                h('input', {
+                  type: c.type,
+                  value: ent[c.key] ?? '',
+                  placeholder: c.placeholder,
+                  oninput: (ev) => {
+                    ent[c.key] = (ev.target as HTMLInputElement).value;
+                    agendar();
+                  },
+                }),
+              ),
+            ),
+          ),
+        ),
+      );
+    };
+    render();
+    return h(
+      'div',
+      { class: 'grupo' },
+      h('h3', {}, inp.label),
+      lista,
+      adicionar,
+      inp.ajuda ? h('small', { class: 'dica' }, inp.ajuda) : null,
+    );
+  }
+
   function listaReceita(def: DocumentDef, inp: ExtraInput): HTMLElement {
     const chave = `${def.tipo}.${inp.key}`;
     const lista = h('div', { class: 'receita' });
-    const dias = () => Number(e.extras[def.tipo]?.dias);
 
     const seletor = h(
       'select',
@@ -461,12 +556,12 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
                 },
               }),
             );
-          const calculada = quantidade({ ...it, quantidade: '' }, dias());
+          const qtd = quantidade(it);
           const detalhes = h(
             'div',
             { class: 'detalhes', hidden: !it.marcado },
             texto('Linha 1', 'prescricao', `${it.nome} (medicamento, concentração)`),
-            texto('Quantidade', 'quantidade', calculada || 'sem cálculo: digite'),
+            texto('Quantidade', 'quantidade', 'ex.: 20 comprimidos (em branco = sai sem)'),
             texto('Posologia', 'posologia', 'em branco = linha para escrever à mão'),
           );
           return h(
@@ -485,7 +580,7 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
                 },
               }),
               h('span', { class: 'nome-item' }, it.nome),
-              it.marcado && calculada && !it.quantidade?.trim() ? h('small', { class: 'qtd' }, calculada) : null,
+              it.marcado && qtd ? h('small', { class: 'qtd' }, qtd) : null,
               it.marcado && !it.posologia.trim() ? h('small', { class: 'pendente' }, 'posologia em branco') : null,
             ),
             detalhes,
@@ -493,7 +588,6 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
         }),
       );
     };
-    atualizarReceita = render;
     render();
     return h(
       'div',
@@ -567,11 +661,13 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
   function atualizarResumo(): void {
     const comVazios = gerados.filter((g) => g.vazios.length);
     botaoImprimir.disabled = gerados.length === 0;
+    const folhas = contarFolhas(gerados, e.juntarMeias);
+    const papel = `${folhas} ${folhas === 1 ? 'folha' : 'folhas'}`;
     resumoImpressao.textContent = !gerados.length
       ? 'Marque ao menos um documento.'
       : comVazios.length
-        ? `${gerados.length} documento(s), ${comVazios.length} com campos em branco.`
-        : `${gerados.length} documento(s) prontos.`;
+        ? `${gerados.length} documento(s), ${comVazios.length} com campos em branco · ${papel}.`
+        : `${gerados.length} documento(s) prontos · ${papel}.`;
   }
 
   async function imprimir(): Promise<void> {
@@ -581,7 +677,7 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
     if (pendentes.length && !window.confirm(`Há campos em branco em: ${pendentes.join(', ')}.\nImprimir assim mesmo?`)) return;
     const finais: DocumentoGerado[] = [];
     for (const d of defs) finais.push(await gerarDocumento(d, contexto(e, d), await bytesDo(d)));
-    const url = URL.createObjectURL(new Blob([new Uint8Array(await gerarLote(finais))], { type: 'application/pdf' }));
+    const url = URL.createObjectURL(new Blob([new Uint8Array(await gerarLote(finais, { juntarMeias: e.juntarMeias }))], { type: 'application/pdf' }));
     window.open(url, '_blank', 'noopener');
     // O PDF fica só na memória; libera depois que a aba de impressão já carregou.
     window.setTimeout(() => URL.revokeObjectURL(url), 60_000);

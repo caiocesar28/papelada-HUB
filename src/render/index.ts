@@ -1,15 +1,18 @@
-import type { PDFDocument } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 import type { DocumentDef } from '../document';
 import { valores, type Contexto } from '../patient';
 import { preencher, type CampoVazio, type OpcoesPreenchimento } from './fill';
-import { juntar, montarFolhas } from './sheet';
+import { empacotarMeias, juntar, meiasDoDocumento, montarFolhas, type Meia } from './sheet';
 
 export type { CampoVazio } from './fill';
 export { juntar } from './sheet';
 
 export interface DocumentoGerado {
   def: DocumentDef;
+  /** Montado só com este documento (pré-visualização). */
   pdf: PDFDocument;
+  /** Formulário preenchido, antes de montar as folhas (para juntar meias folhas no lote). */
+  preenchido: PDFDocument;
   vazios: CampoVazio[];
 }
 
@@ -32,7 +35,7 @@ export async function gerarDocumento(
   opts: OpcoesPreenchimento = {},
 ): Promise<DocumentoGerado> {
   const { pdf, vazios } = await preencher(def, formBytes, valoresDoDocumento(def, ctx), opts);
-  return { def, pdf: await montarFolhas(def, pdf), vazios };
+  return { def, pdf: await montarFolhas(def, pdf), preenchido: pdf, vazios };
 }
 
 /** valores(ctx) + os derivados do documento ('doc.*'). */
@@ -41,8 +44,50 @@ export function valoresDoDocumento(def: DocumentDef, ctx: Contexto): Record<stri
   return def.calcular ? { ...v, ...def.calcular(v, ctx) } : v;
 }
 
-/** Todos os documentos marcados em um único PDF, na ordem dada. */
-export async function gerarLote(gerados: DocumentoGerado[]): Promise<Uint8Array> {
-  const pdf = await juntar(gerados.map((g) => g.pdf));
-  return pdf.save();
+export interface OpcoesLote {
+  /** Meias folhas de documentos diferentes dividem a mesma A4 (economiza papel). */
+  juntarMeias?: boolean;
+}
+
+/**
+ * Todos os documentos marcados em um único PDF, na ordem dada. Com `juntarMeias`, as meias
+ * folhas de todos os documentos são empacotadas juntas, no lugar do primeiro documento de meia
+ * folha.
+ */
+export async function gerarLote(gerados: DocumentoGerado[], opts: OpcoesLote = {}): Promise<Uint8Array> {
+  if (!opts.juntarMeias) return (await juntar(gerados.map((g) => g.pdf))).save();
+
+  const out = await PDFDocument.create();
+  const meias: Meia[] = [];
+  let posicao = -1;
+  for (const g of gerados) {
+    const m = meiasDoDocumento(g.def, g.preenchido);
+    if (m) {
+      if (posicao < 0) posicao = out.getPageCount();
+      meias.push(...m);
+      continue;
+    }
+    const pags = await out.copyPages(g.pdf, g.pdf.getPageIndices());
+    pags.forEach((p) => out.addPage(p));
+  }
+  if (meias.length) {
+    const folhas = await PDFDocument.create();
+    await empacotarMeias(folhas, meias);
+    const pags = await out.copyPages(folhas, folhas.getPageIndices());
+    pags.forEach((p, i) => out.insertPage(posicao + i, p));
+  }
+  return out.save();
+}
+
+/** Quantas folhas o lote usa (para mostrar a economia na tela). */
+export function contarFolhas(gerados: DocumentoGerado[], juntarMeias: boolean): number {
+  if (!juntarMeias) return gerados.reduce((n, g) => n + g.pdf.getPageCount(), 0);
+  let inteiras = 0;
+  let meias = 0;
+  for (const g of gerados) {
+    const m = meiasDoDocumento(g.def, g.preenchido);
+    if (m) meias += m.length;
+    else inteiras += g.pdf.getPageCount();
+  }
+  return inteiras + Math.ceil(meias / 2);
 }

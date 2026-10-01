@@ -54,19 +54,26 @@ describe('modelos publicados (src/presets/modelos.json)', () => {
 });
 
 describe('validação', () => {
-  it('recusa lixo, termo desconhecido, número inválido e id repetido', () => {
+  it('recusa lixo, termo desconhecido, quantidade não-texto e id repetido', () => {
     expect(() => validarModelos('x')).toThrow();
     expect(() => validarModelos({ tcles: [tcle({ termo: 'nao-existe' })] })).toThrow(/termo desconhecido/);
     expect(() => validarModelos({ receitas: [{ id: 'a', nome: 'b' }] })).toThrow(/sem itens/);
     expect(() =>
-      validarModelos({ receitas: [{ id: 'a', nome: 'b', itens: [{ id: 'i', nome: 'n', porDose: 'dois' }] }] }),
-    ).toThrow(/porDose/);
+      validarModelos({ receitas: [{ id: 'a', nome: 'b', itens: [{ id: 'i', nome: 'n', quantidade: 20 }] }] }),
+    ).toThrow(/quantidade/);
     expect(() => validarModelos({ tcles: [tcle(), tcle()] })).toThrow(/id repetido/);
+  });
+
+  it('modelos antigos (com cálculo) ainda importam: os campos do cálculo são descartados', () => {
+    const m = validarModelos({
+      receitas: [{ id: 'r', nome: 'R', itens: [{ id: 'i', nome: 'I', prescricao: '', posologia: '', porDose: 2, vezesAoDia: 4, unidade: 'comprimidos' }] }],
+    });
+    expect(m.receitas[0].itens[0]).toEqual({ id: 'i', nome: 'I', prescricao: '', posologia: '' });
   });
 
   it('paraJson remove campos vazios/indefinidos (arquivo estável para diff no GitHub)', () => {
     const m: Modelos = {
-      receitas: [{ id: 'r', nome: 'R', itens: [{ id: 'i', nome: 'I', prescricao: '', posologia: '', unidade: undefined, padrao: false }] }],
+      receitas: [{ id: 'r', nome: 'R', itens: [{ id: 'i', nome: 'I', prescricao: '', posologia: '', quantidade: '', padrao: false }] }],
       tcles: [],
     };
     expect(JSON.parse(paraJson(m)).receitas[0].itens[0]).toEqual({ id: 'i', nome: 'I', prescricao: '', posologia: '' });
@@ -114,7 +121,7 @@ describe('estado com modelos', () => {
     expect(e.modeloReceita['receituario.itens']).toBe('sintomaticos');
     aplicarModeloReceita(e, 'receituario', 'itens', 'pos-op');
     expect(e.receitas.receituario.itens.map((i) => [i.id, i.marcado])).toEqual([['x', true]]);
-    expect(e.extras.receituario.dias).toBe('5');
+    expect(e.extras.receituario).not.toHaveProperty('dias');
   });
 
   it('modelo de TCLE preenche diagnóstico, procedimento e campos abertos', () => {

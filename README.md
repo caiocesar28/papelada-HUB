@@ -30,6 +30,9 @@ Inspirado no [gerador de alta da puérpera de João Gualda](https://joaogualda19
 | TCLE transfusão | ✔ | — |
 | Reserva de leito UTI | ✔ | — |
 
+Atestado, requisição de exames e retorno ocupam meia folha: com "Juntar meias folhas" (ligado por
+padrão), dois deles saem na mesma A4 para economizar papel.
+
 Os PDFs vêm do espelho mantido pelo CAMed-UnB (https://www.camedunb.com/documentos-hub-ses),
 que não é fonte oficial: confira a versão vigente na enfermaria. Origem e sha256 de cada
 arquivo estão em [`forms.manifest.json`](forms.manifest.json).
