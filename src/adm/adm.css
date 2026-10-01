@@ -74,7 +74,7 @@
 }
 
 .modelo.ativo {
-  background: var(--verde-claro);
+  background: var(--primaria-clara);
   border-color: var(--borda);
   font-weight: 600;
 }
@@ -83,14 +83,14 @@
   font-size: 0.7rem;
   border-radius: 999px;
   padding: 1px 7px;
-  background: #eef1f0;
+  background: #edf3f6;
   color: var(--suave);
   white-space: nowrap;
 }
 
 .origem.novo {
-  background: var(--verde-medio);
-  color: var(--verde-escuro);
+  background: var(--primaria-media);
+  color: var(--primaria-escura);
 }
 
 .origem.alterado {
@@ -141,7 +141,7 @@
 }
 
 .previa-texto {
-  background: #fafaf7;
+  background: #f7fafc;
   border: 1px dashed var(--borda);
   border-radius: 6px;
   padding: 10px;
@@ -207,7 +207,7 @@
 }
 
 .dialogo-publicar::backdrop {
-  background: rgb(10 30 20 / 0.45);
+  background: rgb(5 25 40 / 0.45);
 }
 
 .dialogo-publicar h2 {

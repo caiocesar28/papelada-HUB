@@ -1,22 +1,24 @@
 :root {
   color-scheme: light;
-  --fundo: #eef2f0;
+  /* Azul oceânico */
+  --fundo: #edf4f8;
   --painel: #ffffff;
-  --texto: #17201c;
-  --suave: #5c6a64;
-  --borda: #d6dfdb;
-  --borda-forte: #b9c7c1;
-  --verde: #0b5d3b;
-  --verde-escuro: #08472d;
-  --verde-claro: #e4f2ea;
-  --verde-medio: #c9e6d5;
+  --texto: #12222e;
+  --suave: #566b78;
+  --borda: #d2e0e8;
+  --borda-forte: #b2c8d4;
+  --primaria: #0a4f73;
+  --primaria-escura: #073a56;
+  --primaria-clara: #e1f1f8;
+  --primaria-media: #bde0ef;
   --amarelo: #fff1bf;
   --alerta: #7a5200;
   --erro: #b3261e;
   --erro-claro: #fde7e5;
   --raio: 12px;
-  --sombra: 0 1px 2px rgb(16 40 30 / 0.06), 0 4px 16px rgb(16 40 30 / 0.06);
+  --sombra: 0 1px 2px rgb(10 35 55 / 0.06), 0 4px 16px rgb(10 35 55 / 0.06);
   --altura-topo: 56px;
+  --altura-rodape: 38px;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-size: 15px;
   line-height: 1.4;
@@ -31,6 +33,8 @@
 body {
   margin: 0;
   background: var(--fundo);
+  /* espaço para o rodapé fixo */
+  padding-bottom: var(--altura-rodape);
 }
 
 h2,
@@ -39,7 +43,7 @@ h3 {
 }
 
 a {
-  color: var(--verde);
+  color: var(--primaria);
 }
 
 /* --- cabeçalho ----------------------------------------------------------------- */
@@ -53,7 +57,7 @@ a {
   align-items: center;
   gap: 16px;
   padding: 0 20px;
-  background: var(--verde);
+  background: linear-gradient(90deg, var(--primaria-escura), var(--primaria) 55%, #0b6f94);
   color: #fff;
   box-shadow: 0 1px 0 rgb(0 0 0 / 0.08);
 }
@@ -70,13 +74,13 @@ a {
 .logo {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: #fff;
-  color: var(--verde);
-  font-size: 0.8rem;
-  letter-spacing: -0.02em;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 9px;
+  background: rgb(255 255 255 / 0.92);
+  font-size: 1.15rem;
+  line-height: 1;
+  letter-spacing: 1px;
 }
 
 .selo-privacidade {
@@ -133,7 +137,7 @@ a {
 .painel-dados {
   position: sticky;
   top: calc(var(--altura-topo) + 20px);
-  max-height: calc(100vh - var(--altura-topo) - 40px);
+  max-height: calc(100vh - var(--altura-topo) - var(--altura-rodape) - 40px);
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -165,7 +169,7 @@ a {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: var(--verde);
+  background: var(--primaria);
   color: #fff;
   font-size: 0.8rem;
 }
@@ -226,14 +230,14 @@ select:focus-visible,
 textarea:focus-visible,
 button:focus-visible,
 .cartao-doc:focus-within {
-  outline: 2px solid var(--verde);
+  outline: 2px solid var(--primaria);
   outline-offset: 1px;
 }
 
 input[type='checkbox'] {
   width: 18px;
   height: 18px;
-  accent-color: var(--verde);
+  accent-color: var(--primaria);
   flex-shrink: 0;
 }
 
@@ -291,7 +295,7 @@ input[type='checkbox'] {
 
 .segmento button.ativo {
   background: #fff;
-  color: var(--verde);
+  color: var(--primaria);
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
 }
 
@@ -319,8 +323,8 @@ input[type='checkbox'] {
 }
 
 .cartao-doc.marcado {
-  background: var(--verde-claro);
-  border-color: var(--verde-medio);
+  background: var(--primaria-clara);
+  border-color: var(--primaria-media);
 }
 
 .cartao-doc.indisponivel {
@@ -354,8 +358,8 @@ input[type='checkbox'] {
 }
 
 .status-doc.pronto {
-  background: var(--verde-medio);
-  color: var(--verde-escuro);
+  background: var(--primaria-media);
+  color: var(--primaria-escura);
 }
 
 .status-doc.indisponivel {
@@ -371,7 +375,7 @@ button {
 }
 
 .primario {
-  background: var(--verde);
+  background: var(--primaria);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -380,7 +384,7 @@ button {
 }
 
 .primario:hover:not(:disabled) {
-  background: var(--verde-escuro);
+  background: var(--primaria-escura);
 }
 
 .primario.grande {
@@ -396,8 +400,8 @@ button {
 
 .secundario {
   background: #fff;
-  color: var(--verde);
-  border: 1px solid var(--verde);
+  color: var(--primaria);
+  border: 1px solid var(--primaria);
   border-radius: 8px;
   padding: 8px 14px;
   font-weight: 600;
@@ -405,7 +409,7 @@ button {
 }
 
 .secundario:hover {
-  background: var(--verde-claro);
+  background: var(--primaria-clara);
 }
 
 .rodape-dados {
@@ -455,8 +459,8 @@ button {
 }
 
 .aba.ativa {
-  background: var(--verde);
-  border-color: var(--verde);
+  background: var(--primaria);
+  border-color: var(--primaria);
   color: #fff;
 }
 
@@ -505,8 +509,8 @@ button {
 }
 
 .receita .item.marcado {
-  background: var(--verde-claro);
-  border-color: var(--verde-medio);
+  background: var(--primaria-clara);
+  border-color: var(--primaria-media);
 }
 
 .receita .opcao {
@@ -526,7 +530,7 @@ button {
 }
 
 .qtd {
-  color: var(--verde-escuro);
+  color: var(--primaria-escura);
   font-weight: 600;
 }
 
@@ -544,11 +548,11 @@ button {
 }
 
 .moldura-previa {
-  max-height: calc(100vh - var(--altura-topo) - 110px);
+  max-height: calc(100vh - var(--altura-topo) - var(--altura-rodape) - 110px);
   overflow: auto;
   padding: 16px;
   border-radius: var(--raio);
-  background: #dfe6e2;
+  background: #dce8ee;
   border: 1px solid var(--borda);
 }
 
@@ -590,8 +594,8 @@ button {
 }
 
 .ok {
-  background: var(--verde-claro);
-  color: var(--verde-escuro);
+  background: var(--primaria-clara);
+  color: var(--primaria-escura);
   font-weight: 600;
 }
 
@@ -638,14 +642,28 @@ button {
 }
 
 .rodape-site {
-  padding: 18px 20px 26px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  min-height: var(--altura-rodape);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  padding: 6px 16px;
+  background: rgb(255 255 255 / 0.94);
+  backdrop-filter: blur(6px);
+  border-top: 1px solid var(--borda);
   text-align: center;
   color: var(--suave);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
 }
 
 .rodape-site a {
-  color: var(--suave);
+  color: var(--primaria);
 }
 
 @media print {
@@ -677,6 +695,12 @@ button {
 }
 
 @media (max-width: 820px) {
+  :root {
+    --altura-rodape: 62px;
+  }
+  .rodape-site {
+    font-size: 0.72rem;
+  }
   .layout {
     grid-template-columns: 1fr;
     padding: 12px;
@@ -706,7 +730,23 @@ button {
 }
 
 @media (max-width: 480px) {
+  :root {
+    --altura-rodape: 80px;
+  }
   .marca-texto {
     display: none;
   }
+  /* sem espaço no cabeçalho: o aviso de privacidade vai para o rodapé, sempre visível */
+  .selo-privacidade {
+    display: none;
+  }
+  .selo-rodape {
+    display: inline !important;
+  }
+}
+
+.selo-rodape {
+  display: none;
+  font-weight: 600;
+  color: var(--primaria);
 }
