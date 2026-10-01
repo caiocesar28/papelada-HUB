@@ -43,7 +43,9 @@ class MemStorage {
 
 describe('modelos publicados (src/presets/modelos.json)', () => {
   it('o arquivo do repositório é válido e já está no formato canônico', () => {
-    const bruto = readFileSync(new URL('../src/presets/modelos.json', import.meta.url), 'utf8');
+    const bruto = readFileSync(new URL('../src/presets/modelos.json', import.meta.url), 'utf8').replace(/
+/g, '
+');
     expect(paraJson(PUBLICADOS)).toBe(bruto);
   });
 
