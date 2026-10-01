@@ -1,5 +1,5 @@
 /** Repositório onde os modelos são publicados (quem tem permissão de escrita pode editá-los). */
-export const REPO = 'caiocesarbezerrasilva-a11y/papelada-HUB';
+export const REPO = 'caiocesar28/papelada-HUB';
 export const BRANCH = 'main';
 export const ARQUIVO_MODELOS = 'src/presets/modelos.json';
 
