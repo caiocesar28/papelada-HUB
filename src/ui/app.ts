@@ -7,6 +7,7 @@ import { carregarFormulario, gerarDocumento, gerarLote, type DocumentoGerado } f
 import { TIPOS } from '../tipos';
 import { campo, h, type Attrs } from './dom';
 import {
+  adicionarItemAvulso,
   aplicarModeloReceita,
   aplicarModeloTcle,
   campoObrigatorio,
@@ -378,6 +379,22 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
         inp.label,
       );
     }
+    if (inp.type === 'select') {
+      return campo(
+        inp.label,
+        h(
+          'select',
+          {
+            onchange: (ev) => {
+              extras[inp.key] = (ev.target as HTMLSelectElement).value;
+              agendar();
+            },
+          },
+          ...(inp.opcoes ?? []).map((o) => h('option', { value: o, selected: extras[inp.key] === o }, o || '—')),
+        ),
+        inp.ajuda,
+      );
+    }
     const atributos: Attrs = {
       value: String(extras[inp.key] ?? ''),
       placeholder: inp.placeholder,
@@ -408,9 +425,23 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
           agendar();
         },
       },
+      h('option', { value: '', selected: !e.modeloReceita[chave] }, '— nenhum modelo —'),
       ...e.modelos.receitas.map((m) =>
         h('option', { value: m.id, selected: e.modeloReceita[chave] === m.id }, m.nome),
       ),
+    );
+    const avulso = h(
+      'button',
+      {
+        type: 'button',
+        class: 'secundario',
+        onclick: () => {
+          adicionarItemAvulso(e, def.tipo, inp.key);
+          render();
+          agendar();
+        },
+      },
+      '+ Item avulso',
     );
 
     const render = () => {
@@ -470,6 +501,7 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
       h('h3', {}, inp.label),
       campo('Modelo de receita', seletor),
       lista,
+      avulso,
       inp.ajuda ? h('small', { class: 'dica' }, inp.ajuda) : null,
     );
   }

@@ -27,6 +27,7 @@ function ctxCompleto(hospital: TipoHospital = 'HUB'): Contexto {
       diagnostico: 'Diagnóstico de teste',
       procedimento: 'Procedimento de teste',
       clinica: 'Clínica médica',
+      endereco: 'Endereço de teste',
     },
     hospital: { tipo: hospital, nome: hospital === 'SES' ? 'HRAN' : '' },
     data: new Date('2026-10-01T10:00:00-03:00'),
@@ -37,6 +38,14 @@ function ctxCompleto(hospital: TipoHospital = 'HUB'): Contexto {
       dataConsulta: '2026-10-20',
       hora: '08:00',
       vias: '2',
+      clinicaDestino: 'Cardiologia',
+      motivo: 'Motivo de teste',
+      exames: 'Exame de teste',
+      especialidade: 'Cirurgia geral',
+      justificativa: 'Justificativa de teste',
+      indicacao: 'Indicação de teste',
+      modalidade: 'Reserva para procedimento',
+      dataTransfusao: '2026-10-05',
     },
   };
 }
@@ -61,12 +70,25 @@ describe('registro', () => {
     expect(varianteDe('tcle-cirurgia', 'SES')).toBeUndefined();
   });
 
-  it('variantes de um mesmo tipo usam as mesmas keys de extraInputs', () => {
+  it('variantes de um mesmo tipo: keys em comum têm o mesmo tipo de entrada (o valor é compartilhado)', () => {
     for (const t of TIPOS) {
-      const keys = documentos
-        .filter((d) => d.tipo === t.id)
-        .map((d) => (d.extraInputs ?? []).map((e) => e.key).sort().join(','));
-      expect(new Set(keys).size, t.id).toBeLessThanOrEqual(1);
+      const tipos = new Map<string, string>();
+      for (const d of documentos.filter((x) => x.tipo === t.id)) {
+        for (const e of d.extraInputs ?? []) {
+          const antes = tipos.get(e.key);
+          if (antes) expect(e.type, `${t.id}.${e.key}`).toBe(antes);
+          tipos.set(e.key, e.type);
+        }
+      }
+    }
+  });
+
+  it('todo campo AcroForm usado existe no PDF', async () => {
+    const { PDFDocument } = await import('pdf-lib');
+    for (const d of documentos) {
+      const pdf = await PDFDocument.load(bytes(d));
+      const nomes = new Set(pdf.getForm().getFields().map((f) => f.getName()));
+      for (const c of d.fields) if ('name' in c) expect(nomes.has(c.name), `${d.id}: ${c.name}`).toBe(true);
     }
   });
 });

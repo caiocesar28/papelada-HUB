@@ -22,6 +22,7 @@ export interface Paciente {
   uf: string;
   cpf: string;
   cartaoSus: string;
+  endereco: string;
   clinica: string;
   enfermaria: string;
   leito: string;
@@ -43,6 +44,7 @@ export const ROTULOS_PACIENTE: Record<keyof Paciente, string> = {
   uf: 'UF',
   cpf: 'CPF',
   cartaoSus: 'Cartão SUS',
+  endereco: 'Endereço',
   clinica: 'Clínica',
   enfermaria: 'Enfermaria',
   leito: 'Leito',
@@ -84,6 +86,7 @@ export function pacienteVazio(): Paciente {
     uf: '',
     cpf: '',
     cartaoSus: '',
+    endereco: '',
     clinica: '',
     enfermaria: '',
     leito: '',
@@ -209,6 +212,7 @@ export function valores(ctx: Contexto): Record<string, string> {
   v['hoje.ano'] = String(hoje.ano);
   v['hoje.ano2'] = String(hoje.ano).slice(-2);
   v['hoje.hora'] = horaNoFuso(ctx.data);
+  [v['hoje.hora.h'], v['hoje.hora.min']] = v['hoje.hora'].split(':');
   v['hoje.extenso'] = `${dois(hoje.dia)} de ${MESES[hoje.mes - 1]} de ${hoje.ano}`;
 
   const dn = parseIsoData(p.dataNascimento);
@@ -216,6 +220,7 @@ export function valores(ctx: Contexto): Record<string, string> {
   v['paciente.dataNascimento.dia'] = dn ? dois(dn.dia) : '';
   v['paciente.dataNascimento.mes'] = dn ? dois(dn.mes) : '';
   v['paciente.dataNascimento.ano'] = dn ? String(dn.ano) : '';
+  v['paciente.dataNascimento.ano2'] = dn ? String(dn.ano).slice(-2) : '';
   const i = dn ? idade(dn, hoje) : null;
   v['paciente.idade'] = i ? formatarIdade(i) : '';
   v['paciente.idade.anos'] = i ? String(i.anos) : '';

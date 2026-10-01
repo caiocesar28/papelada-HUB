@@ -70,6 +70,13 @@ export interface CampoOverlay extends CampoBase {
   maxWidth?: number;
   /** Rotação em graus, anti-horária (formulários escaneados deitados). */
   rotate?: number;
+  /**
+   * Quebra o texto em até N linhas dentro de `maxWidth` (a fonte diminui se precisar).
+   * Para campos de várias linhas impressas (justificativa, observações).
+   */
+  linhas?: number;
+  /** Distância entre linhas (pt). Padrão: 1,2 × tamanho da fonte. */
+  lineHeight?: number;
 }
 
 export type CampoDef = CampoAcroform | CampoOverlay;
@@ -81,11 +88,13 @@ export function isAcroform(c: CampoDef): c is CampoAcroform {
 export interface ExtraInput {
   key: string;
   label: string;
-  type: 'text' | 'textarea' | 'number' | 'date' | 'checkbox' | 'receita';
+  type: 'text' | 'textarea' | 'number' | 'date' | 'checkbox' | 'select' | 'receita';
   /** Valor inicial. */
   padrao?: ValorExtra;
   placeholder?: string;
-  /** type 'receita': id do modelo de receita carregado de início (src/modelos). */
+  /** type 'select': opções (o valor é o próprio texto). */
+  opcoes?: string[];
+  /** type 'receita': id do modelo carregado de início (src/modelos). Omitido = começa vazio. */
   modeloPadrao?: string;
   ajuda?: string;
 }

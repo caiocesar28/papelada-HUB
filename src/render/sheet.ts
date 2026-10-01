@@ -27,27 +27,28 @@ export async function montarFolhas(def: DocumentDef, preenchido: PDFDocument): P
 
   const embutidas = await out.embedPages(sequencia.map((i) => preenchido.getPage(i)));
   for (let i = 0; i < embutidas.length; i += 2) {
-    const folha = out.addPage([A4.h, A4.w]);
-    desenharNaCelula(folha, embutidas[i], 0);
-    if (embutidas[i + 1]) desenharNaCelula(folha, embutidas[i + 1], 1);
+    // Página em pé (A5 retrato): duas lado a lado numa A4 deitada.
+    // Página deitada (A5 paisagem): duas empilhadas numa A4 em pé.
+    const deitada = embutidas[i].width > embutidas[i].height;
+    const folha = out.addPage(deitada ? [A4.w, A4.h] : [A4.h, A4.w]);
+    desenharNaCelula(folha, embutidas[i], 0, deitada);
+    if (embutidas[i + 1]) desenharNaCelula(folha, embutidas[i + 1], 1, deitada);
   }
   return out;
 }
 
 type Embutida = Awaited<ReturnType<PDFDocument['embedPages']>>[number];
 
-function desenharNaCelula(folha: PDFPage, pag: Embutida, celula: 0 | 1): void {
-  const cw = folha.getWidth() / 2;
-  const ch = folha.getHeight();
+/** Célula 0 = esquerda (ou de cima, se empilhado); célula 1 = direita (ou de baixo). */
+function desenharNaCelula(folha: PDFPage, pag: Embutida, celula: 0 | 1, empilhar: boolean): void {
+  const cw = empilhar ? folha.getWidth() : folha.getWidth() / 2;
+  const ch = empilhar ? folha.getHeight() / 2 : folha.getHeight();
   const escala = Math.min(cw / pag.width, ch / pag.height);
   const w = pag.width * escala;
   const h = pag.height * escala;
-  folha.drawPage(pag, {
-    x: celula * cw + (cw - w) / 2,
-    y: (ch - h) / 2,
-    width: w,
-    height: h,
-  });
+  const x0 = empilhar ? 0 : celula * cw;
+  const y0 = empilhar ? (1 - celula) * ch : 0;
+  folha.drawPage(pag, { x: x0 + (cw - w) / 2, y: y0 + (ch - h) / 2, width: w, height: h });
 }
 
 /** Junta vários documentos já montados em um único PDF para imprimir de uma vez. */

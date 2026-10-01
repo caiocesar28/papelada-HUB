@@ -2,8 +2,10 @@ import {
   PDFCheckBox,
   PDFDocument,
   PDFDropdown,
+  PDFDict,
   PDFName,
   PDFOptionList,
+  PDFStream,
   PDFRadioGroup,
   PDFTextField,
   StandardFonts,
@@ -49,6 +51,8 @@ export async function preencher(
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const vazios = new Map<string, CampoVazio>();
   const destaques: Array<{ page: PDFPage; rect: Retangulo }> = [];
+  /** Caixas a marcar com "X" depois do flatten (ver preencherAcro). */
+  const marcas: Array<{ page: PDFPage; rect: Retangulo }> = [];
 
   const acro = def.fields.filter(isAcroform);
   const over = def.fields.filter((c): c is CampoOverlay => !isAcroform(c));
@@ -66,9 +70,16 @@ export async function preencher(
         vazios.set(c.key, { key: c.key, label: c.label ?? c.key });
         if (opts.destacarVazios) destaques.push(...retangulosDoCampo(pdf, form, c.name));
       }
+      if (c.checkbox) {
+        // Não usamos o "check" do AcroForm: a aparência marcada depende da fonte ZapfDingbats,
+        // que não vai embutida e some em alguns visualizadores/impressoras. Desenhamos um X.
+        if (marcado(c, v)) marcas.push(...retangulosDoCampo(pdf, form, c.name));
+        continue;
+      }
       preencherAcro(form, c, v, font);
     }
     form.updateFieldAppearances(font);
+    aparenciaDoEstadoAtual(form);
     try {
       form.flatten({ updateFieldAppearances: false });
     } catch (e) {
@@ -77,6 +88,7 @@ export async function preencher(
     }
     // Depois do flatten, para ficar por cima da aparência do campo.
     for (const d of destaques) d.page.drawRectangle({ ...d.rect, color: DESTAQUE, opacity: 0.45 });
+    for (const m of marcas) desenharX(m.page, m.rect, font);
   } else if (acro.length > 0) {
     throw new Error(`[${def.id}] o PDF não tem AcroForm, mas há campos com 'name'`);
   }
@@ -137,13 +149,15 @@ function limparTudo(form: PDFForm): void {
   }
 }
 
+/** "X" centrado na caixa, do tamanho dela. */
+function desenharX(page: PDFPage, r: Retangulo, font: PDFFont): void {
+  const size = Math.max(6, Math.min(r.width, r.height) * 1.25);
+  const w = font.widthOfTextAtSize('X', size);
+  const h = font.heightAtSize(size, { descender: false });
+  page.drawText('X', { x: r.x + (r.width - w) / 2, y: r.y + (r.height - h) / 2, size, font });
+}
+
 function preencherAcro(form: PDFForm, c: CampoAcroform, v: string, font: PDFFont): void {
-  if (c.checkbox) {
-    const cb = form.getCheckBox(c.name);
-    if (marcado(c, v)) cb.check();
-    else cb.uncheck();
-    return;
-  }
   const tf = form.getTextField(c.name);
   const largura = tf.acroField.getWidgets()[0]?.getRectangle().width;
   // margem: borda/padding do campo + folga para o pdf-lib não quebrar a linha tracejada
@@ -163,27 +177,56 @@ function desenharOverlay(page: PDFPage, c: CampoOverlay, v: string, font: PDFFon
     : completarComTracos(paraWinAnsi(v, font), c.maxWidth, font, size0);
   if (!texto) return;
   let size = size0;
-  if (c.maxWidth) {
+  let final = texto;
+  if (c.linhas && c.maxWidth) {
+    // Diminui a fonte até caber no número de linhas; no mínimo, corta com reticências.
+    let linhas = quebrarLinhas(texto, c.maxWidth, font, size);
+    while (linhas.length > c.linhas && size > TAMANHO_MINIMO) {
+      size = Math.max(TAMANHO_MINIMO, size - 0.5);
+      linhas = quebrarLinhas(texto, c.maxWidth, font, size);
+    }
+    if (linhas.length > c.linhas) linhas = [...linhas.slice(0, c.linhas - 1), `${linhas[c.linhas - 1]}…`];
+    final = linhas.join('\n');
+  } else if (c.maxWidth) {
     const largura = Math.max(...texto.split('\n').map((l) => font.widthOfTextAtSize(l, size)));
     if (largura > c.maxWidth) size = Math.max(TAMANHO_MINIMO, (size * c.maxWidth) / largura);
   }
-  page.drawText(texto, {
+  page.drawText(final, {
     x: c.x,
     y: c.y,
     size,
     font,
-    lineHeight: size * 1.2,
+    lineHeight: c.lineHeight ?? size * 1.2,
     rotate: c.rotate ? degrees(c.rotate) : undefined,
   });
+}
+
+/** Quebra por palavras para caber em `largura`; respeita '\n' do texto. */
+export function quebrarLinhas(texto: string, largura: number, font: PDFFont, size: number): string[] {
+  const out: string[] = [];
+  for (const paragrafo of texto.split('\n')) {
+    let atual = '';
+    for (const palavra of paragrafo.split(/\s+/).filter(Boolean)) {
+      const tentativa = atual ? `${atual} ${palavra}` : palavra;
+      if (atual && font.widthOfTextAtSize(tentativa, size) > largura) {
+        out.push(atual);
+        atual = palavra;
+      } else {
+        atual = tentativa;
+      }
+    }
+    out.push(atual);
+  }
+  return out;
 }
 
 function destacarOverlay(page: PDFPage, c: CampoOverlay): void {
   const size = c.size ?? TAMANHO_PADRAO;
   page.drawRectangle({
     x: c.x,
-    y: c.y - size * 0.25,
+    y: c.y - size * 0.25 - (c.linhas ? (c.lineHeight ?? size * 1.2) * (c.linhas - 1) : 0),
     width: c.maxWidth ?? Math.max(40, size * 6),
-    height: size * 1.2,
+    height: c.linhas ? (c.lineHeight ?? size * 1.2) * (c.linhas - 1) + size * 1.2 : size * 1.2,
     rotate: c.rotate ? degrees(c.rotate) : undefined,
     color: DESTAQUE,
     opacity: 0.45,
@@ -200,6 +243,28 @@ function retangulosDoCampo(pdf: PDFDocument, form: PDFForm, nome: string): Array
     if (page) out.push({ page, rect: w.getRectangle() });
   }
   return out;
+}
+
+/**
+ * Caixas de seleção guardam a aparência como dicionário de estados (/N << /Off .. /0 .. >>).
+ * O flatten do pdf-lib copia esse dicionário como XObject, que o pdf.js recusa ("XObject should
+ * be a stream") e a caixa some da prévia. Antes de achatar, fica só o desenho do estado atual.
+ */
+function aparenciaDoEstadoAtual(form: PDFForm): void {
+  for (const f of form.getFields()) {
+    for (const w of f.acroField.getWidgets()) {
+      const ap = w.dict.lookup(PDFName.of('AP'));
+      if (!(ap instanceof PDFDict)) continue;
+      for (const tipo of ['N', 'D', 'R']) {
+        const valor = ap.lookup(PDFName.of(tipo));
+        if (!(valor instanceof PDFDict) || valor instanceof PDFStream) continue;
+        const estado = w.dict.get(PDFName.of('AS'));
+        const desenho = estado instanceof PDFName ? valor.get(estado) : undefined;
+        if (desenho) ap.set(PDFName.of(tipo), desenho);
+        else ap.delete(PDFName.of(tipo));
+      }
+    }
+  }
 }
 
 /**

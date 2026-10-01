@@ -20,9 +20,15 @@ Inspirado no [gerador de alta da puérpera de João Gualda](https://joaogualda19
 | Documento | HUB | SES-DF |
 |---|---|---|
 | Sintomáticos (receituário, 2 vias) | ✔ | ✔ |
+| Receituário de controle especial (2 vias) | ✔ | ✔ |
 | Atestado | ✔ | — |
 | Retorno (marcação de consulta) | ✔ | — |
+| Pedido de parecer | ✔ | ✔ |
+| Requisição de exames (meia folha) | ✔ | — |
+| Reserva de sangue / requisição de transfusão | ✔ | ✔ (Hemocentro) |
 | TCLE cirurgia | ✔ | — |
+| TCLE transfusão | ✔ | — |
+| Reserva de leito UTI | ✔ | — |
 
 Os PDFs vêm do espelho mantido pelo CAMed-UnB (https://www.camedunb.com/documentos-hub-ses),
 que não é fonte oficial: confira a versão vigente na enfermaria. Origem e sha256 de cada

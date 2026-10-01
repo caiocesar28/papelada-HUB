@@ -125,6 +125,71 @@
       "downloadedAt": "2026-10-01T15:25:00-03:00",
       "sha256": "cbd85b2a1ec4af4f61c5d37d573a7bde81580ec71582513c3205521f724e2c94",
       "bytes": 145067
+    },
+    {
+      "id": "receituario-especial-hub",
+      "file": "public/forms/receituario-especial-hub.pdf",
+      "label": "RECEITUÁRIO ESPECIAL",
+      "section": "Solicitação de Exames (coluna HUB)",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_6b3c67a74c204326bd08a88988e6778d.pdf",
+      "downloadedAt": "2026-10-01T16:40:00-03:00",
+      "sha256": "1d7b07221ed9591fc744b14c02a8b8e5bc04ce08603d3832dff31693bc1deba3",
+      "bytes": 446183
+    },
+    {
+      "id": "receituario-especial-ses",
+      "file": "public/forms/receituario-especial-ses.pdf",
+      "label": "Receituário Especial",
+      "section": "Documentos Gerais",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_f72f5a55fc364b7c807d53a24c822cb6.pdf",
+      "downloadedAt": "2026-10-01T16:40:00-03:00",
+      "sha256": "bbd7c2c1d9c9fdbb515413d5cbad830e1377f2500b81b5ee3409dfea02459313",
+      "bytes": 441507,
+      "original": {
+        "sha256": "f04fa7adb33f77e539f550a74147f9709d73accdd8a2c35640cfdeb491850a02",
+        "bytes": 439435
+      },
+      "derived": "O original é criptografado (senha de permissões). Cópia derivada: descriptografada com pypdf (senha vazia) e normalizada com tools/limpar-campos.ts. forms:check deve comparar o download com original.sha256."
+    },
+    {
+      "id": "parecer-hub",
+      "file": "public/forms/parecer-hub.pdf",
+      "label": "Pedido de Parecer",
+      "section": "Solicitação de Exames (coluna HUB)",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_69c85c66d75b43369bdc444bbc8663c2.pdf",
+      "downloadedAt": "2026-10-01T16:40:00-03:00",
+      "sha256": "e9a074d288a0e5041f66a5aa7910ce9a2c3aab48b349f77ddd6217eefce60d9c",
+      "bytes": 405731
+    },
+    {
+      "id": "parecer-ses",
+      "file": "public/forms/parecer-ses.pdf",
+      "label": "PEDIDO DE PARECER",
+      "section": "Documentos Gerais",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_fd412d8eed1d4ace8b984039efb5c6b8.pdf",
+      "downloadedAt": "2026-10-01T16:40:00-03:00",
+      "sha256": "ad77a2ab07b64848d9698f0225923534aa8191f59736de1a7b4db1857097a1ad",
+      "bytes": 767547
+    },
+    {
+      "id": "reserva-uti-hub",
+      "file": "public/forms/reserva-uti-hub.pdf",
+      "label": "Reserva de leito- UTI- (evitável)",
+      "section": "Solicitação de Exames (coluna HUB)",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_fc38b58a76934e338ad6501b94d1654a.pdf",
+      "downloadedAt": "2026-10-01T16:40:00-03:00",
+      "sha256": "9ce161a9ae84f29ac8e32cda78a65afaabbbdc9b4e79b59bb807d4dc7b33fdb6",
+      "bytes": 194709
+    },
+    {
+      "id": "requisicao-exames-hub",
+      "file": "public/forms/requisicao-exames-hub.pdf",
+      "label": "REQUISIÇÃO DE EXAMES",
+      "section": "Solicitação de Exames (coluna HUB)",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_0ec388ab231b43749df6cf82dce7b249.pdf",
+      "downloadedAt": "2026-10-01T16:40:00-03:00",
+      "sha256": "e3d4b577035ca69d074a166faf8c83b2cb5f153d6574460b410a28f35cee7f98",
+      "bytes": 36554
     }
   ]
 }

@@ -53,11 +53,23 @@ export function estadoInicial(modelos: Modelos = PUBLICADOS): Estado {
   };
 }
 
-/** Troca a lista de itens de uma receita pelos itens do modelo (marcados conforme `padrao`). */
+/**
+ * Troca a lista de itens de uma receita pelos itens do modelo (marcados conforme `padrao`).
+ * Id vazio ou desconhecido = lista vazia (p.ex. receituário especial começa sem modelo).
+ */
 export function aplicarModeloReceita(e: Estado, tipo: string, key: string, modeloId: string): void {
-  const m = e.modelos.receitas.find((r) => r.id === modeloId) ?? e.modelos.receitas[0];
+  const m = e.modelos.receitas.find((r) => r.id === modeloId);
   (e.receitas[tipo] ??= {})[key] = (m?.itens ?? []).map((i) => ({ ...i, marcado: i.padrao === true }));
-  if (m) e.modeloReceita[`${tipo}.${key}`] = m.id;
+  e.modeloReceita[`${tipo}.${key}`] = m?.id ?? '';
+}
+
+let contadorAvulso = 0;
+
+/** Item digitado na hora (não vem de modelo); já entra marcado. */
+export function adicionarItemAvulso(e: Estado, tipo: string, key: string): ItemMarcavel {
+  const item: ItemMarcavel = { id: `avulso-${++contadorAvulso}`, nome: 'Item avulso', prescricao: '', posologia: '', marcado: true };
+  ((e.receitas[tipo] ??= {})[key] ??= []).push(item);
+  return item;
 }
 
 /** Preenche diagnóstico, procedimento e os campos abertos do termo com um modelo de TCLE. */
@@ -125,5 +137,6 @@ export function camposPacienteUsados(defs: DocumentDef[]): Array<keyof Paciente>
 /** O campo do paciente é cobrado (não opcional) por algum dos documentos? */
 export function campoObrigatorio(defs: DocumentDef[], k: keyof Paciente): boolean {
   const re = new RegExp(`^paciente\\.${k}(\\.|$)`);
-  return defs.some((d) => d.fields.some((c) => re.test(c.key) && !c.opcional));
+  // Caixas de marcar nunca contam como pendência, então não tornam o campo obrigatório.
+  return defs.some((d) => d.fields.some((c) => re.test(c.key) && !c.opcional && !c.checkbox));
 }

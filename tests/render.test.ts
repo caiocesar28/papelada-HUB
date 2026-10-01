@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import type { DocumentDef } from '../src/document';
 import { pacienteVazio, valores, type Contexto } from '../src/patient';
 import { gerarDocumento, gerarLote } from '../src/render';
-import { preencher } from '../src/render/fill';
+import { preencher, quebrarLinhas } from '../src/render/fill';
 import { A4, folhasNecessarias } from '../src/render/sheet';
 import { paraWinAnsi } from '../src/render/text';
 
@@ -177,6 +177,29 @@ describe('folhas', () => {
     expect(height).toBeCloseTo(A4.w, 1);
   });
 
+  it('perSheet 2 com meia folha deitada (A5 paisagem) empilha numa A4 em pé', async () => {
+    const def: DocumentDef = { ...base, id: 'ex', copies: 2, perSheet: 2, fields: [{ key: 'paciente.nome', name: 'untitled8' }] };
+    const g = await gerarDocumento(def, ctx(), form('requisicao-exames-hub.pdf'));
+    expect(g.pdf.getPageCount()).toBe(1);
+    const { width, height } = g.pdf.getPage(0).getSize();
+    expect(width).toBeCloseTo(A4.w, 1);
+    expect(height).toBeCloseTo(A4.h, 1);
+  });
+
+  it('caixa AcroForm marcada vira um "X" desenhado (não depende da fonte ZapfDingbats)', async () => {
+    const def: DocumentDef = {
+      ...base,
+      id: 'cb',
+      copies: 1,
+      perSheet: 1,
+      pages: [0],
+      fields: [{ key: 'paciente.sexo', name: '7', checkbox: true, marcarSe: 'F' }],
+    };
+    const semMarca = await (await gerarDocumento(def, ctx({ sexo: 'M' }), form('requisicao-transfusao-hub.pdf'))).pdf.save();
+    const comMarca = await (await gerarDocumento(def, ctx({ sexo: 'F' }), form('requisicao-transfusao-hub.pdf'))).pdf.save();
+    expect(comMarca.length).toBeGreaterThan(semMarca.length);
+  });
+
   it('escolhe páginas e junta documentos num lote', async () => {
     const def: DocumentDef = { ...base, id: 'hub', copies: 1, perSheet: 1, pages: [0], fields: [{ key: 'paciente.nome', name: 'Text9' }] };
     const a = await gerarDocumento(def, ctx(), form('requisicao-transfusao-hub.pdf'));
@@ -188,6 +211,14 @@ describe('folhas', () => {
 });
 
 describe('texto', () => {
+  it('quebra por palavras dentro da largura e respeita quebras do usuário', async () => {
+    const font = await (await PDFDocument.create()).embedFont(StandardFonts.Helvetica);
+    const linhas = quebrarLinhas('um dois três quatro cinco seis sete oito\nnove', 80, font, 10);
+    expect(linhas.length).toBeGreaterThan(2);
+    expect(linhas.at(-1)).toBe('nove');
+    for (const l of linhas) expect(font.widthOfTextAtSize(l, 10)).toBeLessThanOrEqual(80);
+  });
+
   it('mantém acentos e troca o que a Helvetica não codifica', async () => {
     const font = await (await PDFDocument.create()).embedFont(StandardFonts.Helvetica);
     expect(paraWinAnsi('Conceição, ácido, 1º', font)).toBe('Conceição, ácido, 1º');
