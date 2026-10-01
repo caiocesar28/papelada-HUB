@@ -4,7 +4,7 @@ Gerador dos documentos da enfermaria do HUB-UnB/EBSERH e da SES-DF: você preenc
 uma vez, marca os documentos, confere a prévia e imprime. Os documentos saem **nos formulários
 oficiais** (o PDF original preenchido), não em uma recriação.
 
-**Feito por Caio César e Leticia Brandão — Turma 114, com colaboração de Malu.**
+**Feito por Caio César, Letícia Brandão e Malu — Turma 114.**
 
 Inspirado no [gerador de alta da puérpera de João Gualda](https://joaogualda19.github.io/enfermaria.gohub/).
 É um projeto novo, não um fork; a ideia de "preencher uma vez e gerar tudo" vem de lá.
