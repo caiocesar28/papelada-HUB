@@ -9,19 +9,22 @@
           "nome": "Dipirona",
           "prescricao": "Dipirona 500 mg",
           "posologia": "2 comprimidos via oral de 6/6h, se dor ou febre.",
+          "quantidade": "15 comprimidos",
           "padrao": true
         },
         {
           "id": "paracetamol",
           "nome": "Paracetamol (opção se alergia a dipirona)",
           "prescricao": "Paracetamol 500 mg",
-          "posologia": "Via oral, de 6/6h, se dor."
+          "posologia": "Via oral, de 6/6h, se dor.",
+          "quantidade": "15 comprimidos"
         },
         {
           "id": "tenoxicam",
           "nome": "Tenoxicam",
           "prescricao": "Tenoxicam 40 mg",
           "posologia": "Via oral, uma vez ao dia, se dor forte.",
+          "quantidade": "7 comprimidos",
           "padrao": true
         },
         {
@@ -29,13 +32,15 @@
           "nome": "Ondansetrona",
           "prescricao": "Ondansetrona 4 mg",
           "posologia": "Via sublingual, de 6/6h, se náuseas.",
+          "quantidade": "15 comprimidos",
           "padrao": true
         },
         {
           "id": "simeticona",
           "nome": "Simeticona",
           "prescricao": "Simeticona 40 mg",
-          "posologia": "Via oral, 3 vezes ao dia, se gases."
+          "posologia": "Via oral, 3 vezes ao dia, se gases.",
+          "quantidade": "20 comprimidos"
         }
       ]
     }
