@@ -163,6 +163,80 @@ a {
   font-size: 1rem;
 }
 
+.passo-dados {
+  border-left: 4px solid var(--primaria);
+}
+
+.passo-dados > .dica {
+  margin: -6px 0 0;
+}
+
+.piscar {
+  animation: piscar 1.6s ease-out;
+}
+
+@keyframes piscar {
+  0%,
+  40% {
+    box-shadow: 0 0 0 4px var(--primaria-media);
+    background: var(--primaria-clara);
+  }
+}
+
+.aviso-passo3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--primaria-clara);
+  border: 1px solid var(--primaria-media);
+  font-size: 0.85rem;
+}
+
+.aviso-passo3 span {
+  flex: 1 1 200px;
+}
+
+.texto-tutorial {
+  text-align: left;
+  max-width: 520px;
+}
+
+.texto-tutorial ol {
+  margin: 8px 0 12px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  line-height: 1.45;
+}
+
+dialog.tutorial {
+  max-width: min(560px, calc(100vw - 32px));
+  border: none;
+  border-radius: var(--raio);
+  padding: 20px 24px;
+  color: var(--texto);
+  background: var(--painel);
+  box-shadow: 0 10px 40px rgb(10 35 55 / 0.3);
+}
+
+dialog.tutorial::backdrop {
+  background: rgb(10 35 55 / 0.45);
+}
+
+dialog.tutorial h2 {
+  margin: 0 0 4px;
+  font-size: 1.1rem;
+}
+
+dialog.tutorial form {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .passo {
   display: grid;
   place-items: center;

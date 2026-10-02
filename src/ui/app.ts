@@ -63,8 +63,9 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
   const camposExtra = h('div', { class: 'grade-campos' });
   const blocoExtra = h(
     'section',
-    { class: 'cartao' },
+    { class: 'cartao passo-dados', id: 'passo-3' },
     h('h2', {}, h('span', { class: 'passo' }, '3'), 'Dados para os documentos'),
+    h('p', { class: 'dica' }, 'Campos que os documentos marcados usam (diagnóstico, procedimento, nascimento...).'),
     camposExtra,
   );
   const resumoImpressao = h('p', { class: 'resumo-impressao' });
@@ -81,8 +82,8 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
   const vazioGeral = h(
     'div',
     { class: 'vazio-geral' },
-    h('p', { class: 'vazio-titulo' }, 'Nenhum documento marcado'),
-    h('p', {}, 'Preencha o paciente e marque os documentos ao lado. A prévia aparece aqui, já no formulário oficial.'),
+    h('p', { class: 'vazio-titulo' }, 'Como usar'),
+    tutorial(),
   );
   const conteudoAba = h(
     'div',
@@ -151,7 +152,9 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
   // Botão "Novo paciente" no cabeçalho (fora da raiz do app).
   const acoesTopo = document.querySelector('#acoes-topo');
   acoesTopo?.querySelector('.novo-paciente')?.remove();
+  acoesTopo?.querySelector('.como-usar')?.remove();
   acoesTopo?.prepend(
+    h('button', { type: 'button', class: 'botao-link como-usar', onclick: abrirTutorial }, 'Como usar'),
     h('button', { type: 'button', class: 'botao-link novo-paciente', onclick: novoPaciente }, 'Novo paciente'),
   );
 
@@ -237,6 +240,28 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
         ),
       ),
     );
+  }
+
+  function abrirTutorial(): void {
+    const dialogo = h(
+      'dialog',
+      { class: 'tutorial' },
+      h('h2', {}, 'Como usar'),
+      tutorial(),
+      h('form', { method: 'dialog' }, h('button', { class: 'primario' }, 'Entendi')),
+    );
+    dialogo.addEventListener('close', () => dialogo.remove());
+    document.body.append(dialogo);
+    dialogo.showModal();
+  }
+
+  /** Leva ao passo 3 (no painel da esquerda, abaixo da lista de documentos) e o destaca. */
+  function irParaPasso3(): void {
+    blocoExtra.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    blocoExtra.classList.remove('piscar');
+    void blocoExtra.offsetWidth; // reinicia a animação
+    blocoExtra.classList.add('piscar');
+    blocoExtra.querySelector<HTMLElement>('input, select, textarea')?.focus({ preventScroll: true });
   }
 
   function novoPaciente(): void {
@@ -353,8 +378,24 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
     const filhos = [modeloTcle(def), ...(def.extraInputs ?? []).map((inp) => inputExtra(def, inp))].filter(
       (x): x is HTMLElement => x !== null,
     );
+    const doPasso3 = camposPacienteUsados([def]);
+    const aviso = doPasso3.length
+      ? h(
+          'div',
+          { class: 'aviso-passo3' },
+          h(
+            'span',
+            {},
+            'Este documento também usa ',
+            h('strong', {}, doPasso3.map((k) => ROTULOS_PACIENTE[k]).join(', ')),
+            ': preencha no passo 3, à esquerda.',
+          ),
+          h('button', { type: 'button', class: 'secundario', onclick: irParaPasso3 }, 'Ir para o passo 3'),
+        )
+      : null;
     ajustes.replaceChildren(
       h('h2', {}, def.title),
+      ...(aviso ? [aviso] : []),
       ...(filhos.length ? filhos : [h('p', { class: 'nada' }, 'Este documento usa só os dados do paciente.')]),
     );
   }
@@ -754,4 +795,33 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
     // O PDF fica só na memória; libera depois que a aba de impressão já carregou.
     window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
+}
+
+/** Passo a passo do app (tela inicial e botão "Como usar"). */
+function tutorial(): HTMLElement {
+  const passo = (titulo: string, texto: string) => h('li', {}, h('strong', {}, titulo), ' ', texto);
+  return h(
+    'div',
+    { class: 'texto-tutorial' },
+    h(
+      'ol',
+      {},
+      passo('Paciente.', 'Escolha HUB ou outro hospital da SES-DF e preencha nome e registro.'),
+      passo('Documentos.', 'Marque os documentos que precisa. Cada um abre uma aba aqui à direita.'),
+      passo(
+        'Dados para os documentos.',
+        'Aparece no painel da esquerda, abaixo da lista de documentos (role para baixo): diagnóstico, procedimento, data de nascimento e outros dados que os documentos marcados usam.',
+      ),
+      passo(
+        'Aba de cada documento.',
+        'Campos próprios do documento: itens e forma de uso da receita, modelo de TCLE, texto do papel timbrado... A prévia mostra o formulário oficial; o que ficou em branco aparece em amarelo.',
+      ),
+      passo('Imprimir.', 'Clique em "Imprimir documentos" (ou Ctrl+P): sai um PDF com tudo, pronto para imprimir.'),
+    ),
+    h(
+      'p',
+      { class: 'dica' },
+      'Nada é salvo nem enviado: fechou a aba, os dados somem. "Novo paciente" limpa tudo para o próximo. Receitas e TCLEs prontos ficam em "Modelos".',
+    ),
+  );
 }
