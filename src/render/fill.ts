@@ -170,6 +170,10 @@ function preencherAcro(form: PDFForm, c: CampoAcroform, v: string, font: PDFFont
 
 function desenharOverlay(page: PDFPage, c: CampoOverlay, v: string, font: PDFFont): void {
   const size0 = c.size ?? TAMANHO_PADRAO;
+  if (c.celulas && !c.checkbox) {
+    desenharEmCelulas(page, c, v, font, size0);
+    return;
+  }
   const texto = c.checkbox
     ? marcado(c, v)
       ? 'X'
@@ -201,6 +205,22 @@ function desenharOverlay(page: PDFPage, c: CampoOverlay, v: string, font: PDFFon
   });
 }
 
+/** Um caractere centrado em cada caixinha impressa (o que sobrar além das caixas é ignorado). */
+function desenharEmCelulas(page: PDFPage, c: CampoOverlay, v: string, font: PDFFont, size: number): void {
+  const bordas = c.celulas!;
+  const texto = paraWinAnsi(c.soDigitos ? v.replace(/\D/g, '') : v.replace(/\s/g, ''), font);
+  for (let i = 0; i < texto.length && i < bordas.length - 1; i++) {
+    const ch = texto[i];
+    const centro = (bordas[i] + bordas[i + 1]) / 2;
+    page.drawText(ch, { x: centro - font.widthOfTextAtSize(ch, size) / 2, y: c.y, size, font });
+  }
+}
+
+/** Divisórias de `n` caixas iguais entre `x0` e `x1` (formulário sem divisórias medidas). */
+export function celulasIguais(x0: number, x1: number, n: number): number[] {
+  return Array.from({ length: n + 1 }, (_, i) => Math.round((x0 + ((x1 - x0) * i) / n) * 10) / 10);
+}
+
 /** Quebra por palavras para caber em `largura`; respeita '\n' do texto. */
 export function quebrarLinhas(texto: string, largura: number, font: PDFFont, size: number): string[] {
   const out: string[] = [];
@@ -222,10 +242,11 @@ export function quebrarLinhas(texto: string, largura: number, font: PDFFont, siz
 
 function destacarOverlay(page: PDFPage, c: CampoOverlay): void {
   const size = c.size ?? TAMANHO_PADRAO;
+  const cel = c.celulas;
   page.drawRectangle({
-    x: c.x,
+    x: cel ? cel[0] : c.x,
     y: c.y - size * 0.25 - (c.linhas ? (c.lineHeight ?? size * 1.2) * (c.linhas - 1) : 0),
-    width: c.maxWidth ?? Math.max(40, size * 6),
+    width: cel ? cel[cel.length - 1] - cel[0] : (c.maxWidth ?? Math.max(40, size * 6)),
     height: c.linhas ? (c.lineHeight ?? size * 1.2) * (c.linhas - 1) + size * 1.2 : size * 1.2,
     rotate: c.rotate ? degrees(c.rotate) : undefined,
     color: DESTAQUE,

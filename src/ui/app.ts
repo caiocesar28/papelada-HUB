@@ -18,7 +18,9 @@ import {
   iniciarExtras,
   type Estado,
 } from './estado';
+import { campoBusca } from './busca';
 import { mostrarPdf } from './preview';
+import { carregarCompatibilidade, lerValor } from '../tabelas';
 
 /** PDFs originais já baixados (não têm dado de paciente; sobrevivem a "Novo paciente"). */
 const formularios = new Map<string, ArrayBuffer>();
@@ -383,6 +385,20 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
     const extras = e.extras[def.tipo];
     if (inp.type === 'receita') return listaReceita(def, inp);
     if (inp.type === 'lista') return listaEntradas(def, inp);
+    if (inp.type === 'busca') {
+      return campoBusca({
+        rotulo: inp.label,
+        valor: String(extras[inp.key] ?? ''),
+        tabela: inp.tabela ?? 'cid10',
+        apenasPrincipal: inp.apenasPrincipal,
+        prioridade: inp.compativelCom ? () => cidsCompativeis(String(extras[inp.compativelCom!] ?? '')) : undefined,
+        ajuda: inp.ajuda,
+        aoMudar: (v) => {
+          extras[inp.key] = v;
+          agendar();
+        },
+      });
+    }
     if (inp.type === 'checkbox') {
       return h(
         'label',
@@ -427,6 +443,14 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
         ? h('textarea', { ...atributos, rows: 4 })
         : h('input', { ...atributos, type: inp.type, min: inp.type === 'number' ? 0 : undefined });
     return campo(inp.label, el, inp.ajuda);
+  }
+
+  /** CIDs compatíveis com o procedimento escolhido (valor "CÓDIGO — NOME"), para ordenar a busca. */
+  async function cidsCompativeis(procedimento: string): Promise<Set<string> | undefined> {
+    const { codigo } = lerValor(procedimento);
+    if (!codigo) return undefined;
+    const compat = await carregarCompatibilidade();
+    return compat[codigo] ? new Set(compat[codigo]) : undefined;
   }
 
   /** Entradas independentes (p.ex. cartões de retorno), cada uma com os mesmos campos. */
@@ -479,18 +503,29 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
                 : null,
             ),
             ...(inp.campos ?? []).map((c) =>
-              campo(
-                c.label,
-                h('input', {
-                  type: c.type,
-                  value: ent[c.key] ?? '',
-                  placeholder: c.placeholder,
-                  oninput: (ev) => {
-                    ent[c.key] = (ev.target as HTMLInputElement).value;
-                    agendar();
-                  },
-                }),
-              ),
+              c.type === 'busca'
+                ? campoBusca({
+                    rotulo: c.label,
+                    valor: ent[c.key] ?? '',
+                    tabela: c.tabela ?? 'cid10',
+                    apenasPrincipal: c.apenasPrincipal,
+                    aoMudar: (v) => {
+                      ent[c.key] = v;
+                      agendar();
+                    },
+                  })
+                : campo(
+                    c.label,
+                    h('input', {
+                      type: c.type,
+                      value: ent[c.key] ?? '',
+                      placeholder: c.placeholder,
+                      oninput: (ev) => {
+                        ent[c.key] = (ev.target as HTMLInputElement).value;
+                        agendar();
+                      },
+                    }),
+                  ),
             ),
           ),
         ),

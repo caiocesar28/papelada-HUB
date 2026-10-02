@@ -9,5 +9,7 @@ export const TIPOS: Array<{ id: string; titulo: string; descricao: string }> = [
   { id: 'reserva-sangue', titulo: 'Reserva de sangue', descricao: 'Requisição de transfusão / reserva para procedimento' },
   { id: 'tcle-cirurgia', titulo: 'TCLE cirurgia', descricao: 'Identificação e modelo por procedimento' },
   { id: 'tcle-transfusao', titulo: 'TCLE transfusão', descricao: 'Identificação; texto do termo intacto' },
+  { id: 'apac', titulo: 'APAC', descricao: 'Laudo de procedimento ambulatorial, com SIGTAP e CID-10' },
+  { id: 'anatomopatologico', titulo: 'Pedido de anatomopatológico', descricao: 'Requisição para a Anatomia Patológica' },
   { id: 'reserva-uti', titulo: 'Reserva de leito UTI', descricao: 'Vaga de urgência/emergência ou pós-operatória' },
 ];

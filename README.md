@@ -28,10 +28,16 @@ Inspirado no [gerador de alta da puérpera de João Gualda](https://joaogualda19
 | Reserva de sangue / requisição de transfusão | ✔ | ✔ (Hemocentro) |
 | TCLE cirurgia | ✔ | — |
 | TCLE transfusão | ✔ | — |
+| APAC (laudo de procedimento ambulatorial, 2 vias) | ✔ | ✔ |
+| Pedido de anatomopatológico | ✔ | — |
 | Reserva de leito UTI | ✔ | — |
 
 Atestado, requisição de exames e retorno ocupam meia folha: com "Juntar meias folhas" (ligado por
 padrão), dois deles saem na mesma A4 para economizar papel.
+
+Na APAC, procedimentos e CID-10 são buscados nas tabelas oficiais do SIGTAP/DATASUS (só os
+procedimentos que podem ir em APAC; os CIDs compatíveis com o procedimento aparecem primeiro).
+Para atualizar as tabelas para uma competência nova: `python tools/tabelas.py`.
 
 Os PDFs vêm do espelho mantido pelo CAMed-UnB (https://www.camedunb.com/documentos-hub-ses),
 que não é fonte oficial: confira a versão vigente na enfermaria. Origem e sha256 de cada

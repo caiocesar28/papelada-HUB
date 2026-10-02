@@ -190,6 +190,36 @@
       "downloadedAt": "2026-10-01T16:40:00-03:00",
       "sha256": "e3d4b577035ca69d074a166faf8c83b2cb5f153d6574460b410a28f35cee7f98",
       "bytes": 36554
+    },
+    {
+      "id": "apac-hub",
+      "file": "public/forms/apac-hub.pdf",
+      "label": "APAC",
+      "section": "Solicitação de Exames (coluna HUB)",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_da1ad6de2c874e20aeb5daab2cc674b3.pdf",
+      "downloadedAt": "2026-10-01T21:10:00-03:00",
+      "sha256": "eefef5c3ecbd2872ecec66dbdbd7f2fd300c99ff002226d3cb7b58e0b3846ef5",
+      "bytes": 821382
+    },
+    {
+      "id": "apac-ses",
+      "file": "public/forms/apac-ses.pdf",
+      "label": "APAC",
+      "section": "Solicitação de Exames (Secretaria de Saúde)",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_88d7392abcf44849a51985b3bdb6f98c.pdf",
+      "downloadedAt": "2026-10-01T21:10:00-03:00",
+      "sha256": "cf2c7158a8d157bbc8641fe038a11d117eeb6d04f74b7b1645f87def39354b0e",
+      "bytes": 125294
+    },
+    {
+      "id": "anatomopatologico-hub",
+      "file": "public/forms/anatomopatologico-hub.pdf",
+      "label": "Pedido anatomopatológico de peça",
+      "section": "Solicitação de Exames (coluna HUB)",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_892a21bd33b341099e6eda0f41c9d5e9.pdf",
+      "downloadedAt": "2026-10-01T21:10:00-03:00",
+      "sha256": "80aa15d5e383bf314332943fa9e053256031c3b63a1a3a3b84999050c1d5daa8",
+      "bytes": 100110
     }
   ]
 }

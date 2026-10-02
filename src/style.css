@@ -428,6 +428,81 @@ button {
   color: var(--suave);
 }
 
+.busca {
+  position: relative;
+}
+
+.busca input {
+  padding-right: 28px;
+}
+
+.limpar-busca {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  color: var(--suave);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 2px 6px;
+}
+
+.sugestoes {
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  right: 0;
+  top: calc(100% + 2px);
+  max-height: 280px;
+  overflow: auto;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: #fff;
+  border: 1px solid var(--borda-forte);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(10 35 55 / 0.18);
+}
+
+.sugestao {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.86rem;
+}
+
+.sugestao.ativa,
+.sugestao:hover {
+  background: var(--primaria-clara);
+}
+
+.sugestao .codigo {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--primaria-escura);
+  white-space: nowrap;
+}
+
+.sugestao .nome {
+  flex: 1;
+}
+
+.sugestao .compativel {
+  color: var(--primaria);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sugestao.vazia {
+  color: var(--suave);
+  cursor: default;
+}
+
 .lista-entradas {
   display: flex;
   flex-direction: column;

@@ -75,6 +75,13 @@ export interface CampoOverlay extends CampoBase {
   linhas?: number;
   /** Distância entre linhas (pt). Padrão: 1,2 × tamanho da fonte. */
   lineHeight?: number;
+  /**
+   * Caixinhas impressas (um caractere por caixa): x das divisórias, da borda esquerda da 1ª
+   * caixa à borda direita da última. Cada caractere sai centrado na sua caixa.
+   */
+  celulas?: number[];
+  /** Com `celulas`: só os dígitos do valor (CNS, CPF, CEP, códigos). */
+  soDigitos?: boolean;
 }
 
 export type CampoDef = CampoAcroform | CampoOverlay;
@@ -83,10 +90,19 @@ export function isAcroform(c: CampoDef): c is CampoAcroform {
   return 'name' in c;
 }
 
+/** Busca numa tabela do SUS (src/tabelas.ts). O valor fica como "CÓDIGO — NOME". */
+export interface OpcoesBusca {
+  tabela?: 'procedimentos-apac' | 'cid10';
+  /** Só procedimentos que podem ser o principal da APAC. */
+  apenasPrincipal?: boolean;
+  /** Key de outro extra (um procedimento): os CIDs compatíveis com ele aparecem primeiro. */
+  compativelCom?: string;
+}
+
 export interface ExtraInput {
   key: string;
   label: string;
-  type: 'text' | 'textarea' | 'number' | 'date' | 'checkbox' | 'select' | 'receita' | 'lista';
+  type: 'text' | 'textarea' | 'number' | 'date' | 'checkbox' | 'select' | 'receita' | 'lista' | 'busca';
   /** Valor inicial. */
   padrao?: ValorExtra;
   placeholder?: string;
@@ -98,11 +114,15 @@ export interface ExtraInput {
    * type 'lista': entradas independentes, cada uma com estes campos (p.ex. cartões de retorno
    * com clínica, data e hora próprias). Começa com `min` entradas.
    */
-  campos?: Array<{ key: string; label: string; type: 'text' | 'date'; placeholder?: string }>;
+  campos?: Array<{ key: string; label: string; type: 'text' | 'date' | 'busca'; placeholder?: string } & OpcoesBusca>;
   min?: number;
   max?: number;
   /** Nome de uma entrada na tela ("Cartão" → "Cartão 1", "+ Adicionar cartão"). */
   rotuloItem?: string;
+  /** type 'busca': ver OpcoesBusca. */
+  tabela?: OpcoesBusca['tabela'];
+  apenasPrincipal?: boolean;
+  compativelCom?: string;
   ajuda?: string;
 }
 

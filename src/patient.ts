@@ -22,7 +22,11 @@ export interface Paciente {
   uf: string;
   cpf: string;
   cartaoSus: string;
+  nomeMae: string;
+  telefone: string;
   endereco: string;
+  municipio: string;
+  cep: string;
   clinica: string;
   enfermaria: string;
   leito: string;
@@ -44,7 +48,11 @@ export const ROTULOS_PACIENTE: Record<keyof Paciente, string> = {
   uf: 'UF',
   cpf: 'CPF',
   cartaoSus: 'Cartão SUS',
+  nomeMae: 'Nome da mãe ou responsável',
+  telefone: 'Telefone',
   endereco: 'Endereço',
+  municipio: 'Município',
+  cep: 'CEP',
   clinica: 'Clínica',
   enfermaria: 'Enfermaria',
   leito: 'Leito',
@@ -86,7 +94,11 @@ export function pacienteVazio(): Paciente {
     uf: '',
     cpf: '',
     cartaoSus: '',
+    nomeMae: '',
+    telefone: '',
     endereco: '',
+    municipio: '',
+    cep: '',
     clinica: '',
     enfermaria: '',
     leito: '',
