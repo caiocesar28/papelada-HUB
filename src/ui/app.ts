@@ -1,5 +1,5 @@
 import type { DocumentDef, EntradaLista, ExtraInput } from '../document';
-import { quantidade } from '../documents/_receita';
+import { VIAS, quantidade } from '../documents/_receita';
 import { TERMOS_COM_MODELO } from '../modelos';
 import { ROTULOS_PACIENTE, type Paciente, type TipoHospital } from '../patient';
 import { varianteDe } from '../registry';
@@ -199,6 +199,22 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
     });
   }
 
+  /** Diagnóstico: texto livre, com a lista de CID-10 como sugestão. */
+  function campoDiagnostico(rotulo: string): HTMLElement {
+    return campoBusca({
+      rotulo,
+      valor: e.paciente.diagnostico,
+      tabela: 'cid10',
+      livre: true,
+      placeholder: 'Escreva o diagnóstico ou busque na lista de CID-10',
+      ajuda: 'Texto livre. Ao digitar, aparecem sugestões do CID-10; escolher uma escreve "nome (CID código)".',
+      aoMudar: (v) => {
+        e.paciente.diagnostico = v;
+        agendar();
+      },
+    });
+  }
+
   function renderHospital(): void {
     campoHospital.hidden = e.hospital.tipo !== 'SES';
     segmentoHospital.replaceChildren(
@@ -279,12 +295,15 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
     const usados = camposPacienteUsados(defs);
     blocoExtra.hidden = usados.length === 0;
     camposExtra.replaceChildren(
-      ...usados.map((k) =>
-        campo(
-          ROTULOS_PACIENTE[k] + (campoObrigatorio(defs, k) ? '' : ' (opcional)'),
-          inputPaciente(k, k === 'dataNascimento' ? 'date' : 'text'),
-        ),
-      ),
+      ...usados.map((k) => {
+        const rotulo = ROTULOS_PACIENTE[k] + (campoObrigatorio(defs, k) ? '' : ' (opcional)');
+        if (k === 'diagnostico') {
+          const el = campoDiagnostico(rotulo);
+          el.classList.add('largo');
+          return el;
+        }
+        return campo(rotulo, inputPaciente(k, k === 'dataNascimento' ? 'date' : 'text'));
+      }),
     );
 
     renderDocs();
@@ -598,6 +617,23 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
             texto('Linha 1', 'prescricao', `${it.nome} (medicamento, concentração)`),
             texto('Quantidade', 'quantidade', 'ex.: 20 comprimidos (em branco = sai sem)'),
             texto('Posologia', 'posologia', 'em branco = linha para escrever à mão'),
+            campo(
+              'Forma de uso deste item',
+              h(
+                'select',
+                {
+                  onchange: (ev) => {
+                    const v = (ev.target as HTMLSelectElement).value;
+                    if (v) it.via = v;
+                    else delete it.via;
+                    render();
+                    agendar();
+                  },
+                },
+                h('option', { value: '', selected: !it.via }, '— a da lista —'),
+                ...VIAS.map((v) => h('option', { value: v, selected: it.via === v }, v)),
+              ),
+            ),
           );
           return h(
             'div',
@@ -616,6 +652,7 @@ export function iniciarApp(raiz: HTMLElement, preservado?: Preservado): void {
               }),
               h('span', { class: 'nome-item' }, it.nome),
               it.marcado && qtd ? h('small', { class: 'qtd' }, qtd) : null,
+              it.marcado && it.via ? h('small', { class: 'qtd' }, it.via.toLowerCase()) : null,
               it.marcado && !it.posologia.trim() ? h('small', { class: 'pendente' }, 'posologia em branco') : null,
             ),
             detalhes,

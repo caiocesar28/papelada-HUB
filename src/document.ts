@@ -20,6 +20,11 @@ export interface ItemReceita {
    * independente: não é calculado a partir de dose, frequência ou dias. Vazio = sai sem.
    */
   quantidade?: string;
+  /**
+   * Forma de uso deste item ("USO TÓPICO"), quando difere da escolhida para a lista.
+   * Vazio = a da lista.
+   */
+  via?: string;
   /** Já vem marcado. */
   padrao?: boolean;
 }

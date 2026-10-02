@@ -54,6 +54,7 @@ function ctxCompleto(hospital: TipoHospital = 'HUB'): Contexto {
       material: 'Material de teste',
       resumo: 'Resumo de teste',
       exame: 'Exame de teste',
+      texto: 'Texto de teste',
     },
   };
 }
@@ -136,6 +137,28 @@ describe('receita', () => {
     expect(quantidade(item({}))).toBe('');
     expect(textoReceita([dipirona])).toBe('1. Dipirona 500 mg\t20 comprimidos\n    p');
     expect(textoReceita([item({ prescricao: 'Sem quantidade', posologia: 'p' })])).toBe('1. Sem quantidade\n    p');
+  });
+
+  it('forma de uso: cabeçalho antes dos itens, agrupando por via e numerando em sequência', () => {
+    const a = item({ prescricao: 'A', posologia: 'p' });
+    const b = item({ prescricao: 'B', posologia: 'p', via: 'USO TÓPICO' });
+    const c = item({ prescricao: 'C', posologia: 'p' });
+    expect(textoReceita([a], 'USO ORAL')).toBe('USO ORAL\n\n1. A\n    p');
+    expect(textoReceita([a, b, c], 'USO ORAL')).toBe(
+      'USO ORAL\n\n1. A\n    p\n\n2. C\n    p\n\nUSO TÓPICO\n\n3. B\n    p',
+    );
+    // sem forma de uso na lista: só o item com via ganha cabeçalho
+    expect(textoReceita([a, b])).toBe('1. A\n    p\n\nUSO TÓPICO\n\n2. B\n    p');
+  });
+
+  it('a forma de uso vem antes da lista de itens nos receituários', () => {
+    for (const tipo of ['receituario', 'receituario-especial']) {
+      for (const h of ['HUB', 'SES'] as const) {
+        const keys = varianteDe(tipo, h)!.extraInputs!.map((x) => x.key);
+        expect(keys.indexOf('via'), `${tipo} ${h}`).toBeGreaterThanOrEqual(0);
+        expect(keys.indexOf('via')).toBeLessThan(keys.indexOf('itens'));
+      }
+    }
   });
 
   it('não há mais "dias de tratamento" nem cálculo de quantidade nos receituários', () => {

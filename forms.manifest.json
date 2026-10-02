@@ -220,6 +220,22 @@
       "downloadedAt": "2026-10-01T21:10:00-03:00",
       "sha256": "80aa15d5e383bf314332943fa9e053256031c3b63a1a3a3b84999050c1d5daa8",
       "bytes": 100110
+    },
+    {
+      "id": "papel-timbrado-hub",
+      "file": "public/forms/papel-timbrado-hub.pdf",
+      "label": "RELATÓRIO",
+      "section": "Documentos Gerais",
+      "url": "https://www.camedunb.com/_files/ugd/333e66_5a3f2d619c6f49ffaaa53da009c84524.doc?dn=Papel%20Timbrado%20EBSERH.doc",
+      "downloadedAt": "2026-10-02T17:12:00-03:00",
+      "sha256": "110cae57ba5f0fa2cc73be8a1be512826c757e4ca5abaf1700abce9c42b1303d",
+      "bytes": 2350539,
+      "original": {
+        "sha256": "31affb5cf9cc6dd076a1eabe34ce23536be71bf0db0fa7cc23c5f82c8ea061f0",
+        "bytes": 2410496,
+        "localCopy": "forms-originais/papel-timbrado-ebserh.doc (fora do git)",
+        "note": "Papel Timbrado EBSERH.doc (Word). Convertido por tools/papel-timbrado.ts: as 2 imagens de página inteira do .doc copiadas sem reprocessar para 2 páginas A4."
+      }
     }
   ]
 }

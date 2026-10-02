@@ -1,5 +1,5 @@
 import type { CampoAcroform, DocumentDef } from '../document';
-import { calcularReceita } from './_receita';
+import { calcularReceita, extraVia } from './_receita';
 
 /**
  * Receituário de controle especial (HUB e SES usam o mesmo layout): A4 deitada com 1ª via
@@ -26,6 +26,7 @@ export function receituarioEspecial(hospital: 'HUB' | 'SES', form: string): Docu
     viasNaFolha: 2,
     perSheet: 1,
     extraInputs: [
+      extraVia,
       {
         key: 'itens',
         label: 'Itens da receita',

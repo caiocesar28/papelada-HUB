@@ -61,6 +61,7 @@ function validarItem(v: unknown, onde: string): ItemReceita {
   };
   // porDose/vezesAoDia/unidade (versão antiga, com cálculo) são ignorados.
   if (o.quantidade !== undefined && o.quantidade !== '') item.quantidade = texto(o.quantidade, `${onde}.quantidade`);
+  if (o.via !== undefined && o.via !== '') item.via = texto(o.via, `${onde}.via`);
   if (o.padrao === true) item.padrao = true;
   return item;
 }

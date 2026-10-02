@@ -9,7 +9,7 @@ import '../style.css';
 import './adm.css';
 import { ARQUIVO_MODELOS, URL_EDITAR_MODELOS, URL_REPO } from '../config';
 import type { ItemReceita } from '../document';
-import { textoReceita } from '../documents/_receita';
+import { VIAS, textoReceita } from '../documents/_receita';
 import {
   CHAVE_RASCUNHO,
   PUBLICADOS,
@@ -264,6 +264,24 @@ function editorReceita(m: ModeloReceita): HTMLElement[] {
                 else delete x.quantidade;
               }),
             { placeholder: 'Ex.: 20 comprimidos (em branco = sai sem quantidade)' },
+          ),
+          campo(
+            'Forma de uso',
+            h(
+              'select',
+              {
+                onchange: (ev) => {
+                  const v = (ev.target as HTMLSelectElement).value;
+                  mudar((x) => {
+                    if (v) x.via = v;
+                    else delete x.via;
+                  });
+                  salvar(true);
+                },
+              },
+              h('option', { value: '', selected: !it.via }, '— a da lista (escolhida na receita) —'),
+              ...VIAS.map((v) => h('option', { value: v, selected: it.via === v }, v)),
+            ),
           ),
         );
       }),

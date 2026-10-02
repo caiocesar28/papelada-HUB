@@ -11,5 +11,6 @@ export const TIPOS: Array<{ id: string; titulo: string; descricao: string }> = [
   { id: 'tcle-transfusao', titulo: 'TCLE transfusão', descricao: 'Identificação; texto do termo intacto' },
   { id: 'apac', titulo: 'APAC', descricao: 'Laudo de procedimento ambulatorial, com SIGTAP e CID-10' },
   { id: 'anatomopatologico', titulo: 'Pedido de anatomopatológico', descricao: 'Requisição para a Anatomia Patológica' },
+  { id: 'papel-timbrado', titulo: 'Papel timbrado', descricao: 'Relatório, declaração ou texto livre no timbrado HUB/EBSERH' },
   { id: 'reserva-uti', titulo: 'Reserva de leito UTI', descricao: 'Vaga de urgência/emergência ou pós-operatória' },
 ];

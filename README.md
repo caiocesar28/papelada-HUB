@@ -31,6 +31,7 @@ Inspirado no [gerador de alta da puérpera de João Gualda](https://joaogualda19
 | APAC (laudo de procedimento ambulatorial, 2 vias) | ✔ | ✔ |
 | Pedido de anatomopatológico | ✔ | — |
 | Reserva de leito UTI | ✔ | — |
+| Papel timbrado (relatório, declaração, texto livre) | ✔ | — |
 
 Atestado, requisição de exames e retorno ocupam meia folha: com "Juntar meias folhas" (ligado por
 padrão), dois deles saem na mesma A4 para economizar papel.
@@ -38,6 +39,13 @@ padrão), dois deles saem na mesma A4 para economizar papel.
 Na APAC, procedimentos e CID-10 são buscados nas tabelas oficiais do SIGTAP/DATASUS (só os
 procedimentos que podem ir em APAC; os CIDs compatíveis com o procedimento aparecem primeiro).
 Para atualizar as tabelas para uma competência nova: `python tools/tabelas.py`.
+O diagnóstico (TCLEs, APAC) é texto livre, com sugestões do CID-10 ao digitar.
+
+Nos receituários, a forma de uso (USO ORAL, USO TÓPICO...) sai como cabeçalho antes dos itens;
+um item com forma de uso diferente da lista vai para o seu próprio grupo.
+
+O papel timbrado vem do `.doc` do espelho (só imagens de página inteira), convertido em PDF por
+`npx tsx tools/papel-timbrado.ts` (o `.doc` fica em `forms-originais/`, fora do git).
 
 Os PDFs vêm do espelho mantido pelo CAMed-UnB (https://www.camedunb.com/documentos-hub-ses),
 que não é fonte oficial: confira a versão vigente na enfermaria. Origem e sha256 de cada
